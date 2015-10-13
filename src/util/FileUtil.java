@@ -98,7 +98,8 @@ public class FileUtil {
 			int buffSize = 256 + 256 + 4;
 			byte[] buff = new byte[buffSize];
 			ins.read(buff, 0, 256);
-			String f_name = new String(buff, 0, 256);
+			String f_name = new String(buff, 0, 256).replaceAll("\\x00", "");
+			System.out.println(f_name.length());
 
 			ins.read(buff, 256, 256);
 			String l_name = new String(buff, 256, 256);
