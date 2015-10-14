@@ -10,11 +10,11 @@ public class Node {
 	/** 词的内容 */
 	public String word;
 	/** 当前词的edit distance */
-	public int distance;
+	public int distance = 0;
 	/** 当前的维特比概率 */
-	public double prob;
+	public double prob = 0.0;
 	/** 前驱节点 */
-	public Node preVit;
+	public Node preNode = null;
 
 	
 	public Node(String word, int distance) {
@@ -22,9 +22,6 @@ public class Node {
 		this.word = word;
 		this.distance = distance;
 	}
-
-
-
 
 	/**
 	 * 
@@ -34,14 +31,22 @@ public class Node {
 	 *            当前的维特比概率
 	 * @param word
 	 *            词的内容
-	 * @param preVit
+	 * @param preNode
 	 *            前驱节点
 	 */
-	public Node(String word, int distance, double prob, Node preVit) {
+	public Node(String word, int distance, double prob, Node preNode) {
 		super();
 		this.word = word;
 		this.distance = distance;
 		this.prob = prob;
-		this.preVit = preVit;
+		this.preNode = preNode;
 	}
+
+	@Override
+	public String toString() {
+		return "Node [word=" + word + ", distance=" + distance + ", prob=" + prob + "]";
+	}
+
+
+	
 }

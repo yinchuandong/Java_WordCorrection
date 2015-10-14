@@ -53,7 +53,7 @@ public class CorpusUtil {
 
 		loadOxfordWords();
 		loadBigram();
-//		loadCandidateList();
+		loadCandidateList();
 	}
 
 	private void loadOxfordWords() {
@@ -114,26 +114,22 @@ public class CorpusUtil {
 			File file = new File(C.PATH_CANDIDATE_LIST);
 			BufferedReader reader = new BufferedReader(new FileReader(file));
 			String buff = null;
-			buff = reader.readLine();
-//			buff = reader.readLine();
-			System.out.println(buff);
-//			while ((buff = reader.readLine()) != null) {
-//				
-//				int index = buff.indexOf("\t");
-//				String key = buff.substring(0, index);
-//				String[] lineArr = buff.substring(index + 1).split("\t");
-//				System.out.println(key);
-//				ArrayList<Node> list = new ArrayList<Node>();
-//				for (String item : lineArr) {
-//					String[] arr = item.split(",");
-//					String word = arr[0];
-//					int distance = Integer.parseInt(arr[1]);
-//					Node node = new Node(word, distance);
-//					list.add(node);
-//				}
-//				candidateList.put(key, list);
-//			}
-//			reader.close();
+			while ((buff = reader.readLine()) != null) {
+				
+				int index = buff.indexOf(" ");
+				String key = buff.substring(0, index);
+				String[] lineArr = buff.substring(index + 1).split(" ");
+				ArrayList<Node> list = new ArrayList<Node>();
+				for (String item : lineArr) {
+					String[] arr = item.split(",");
+					String word = arr[0];
+					int distance = Integer.parseInt(arr[1]);
+					Node node = new Node(word, distance);
+					list.add(node);
+				}
+				candidateList.put(key, list);
+			}
+			reader.close();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -161,31 +157,13 @@ public class CorpusUtil {
 	private void createCandidateList() {
 		try {
 			PrintWriter writer = new PrintWriter(new File(C.PATH_CANDIDATE_LIST));
-			EditDistanceUtil editUtil = EditDistanceUtil.getInstance();
+			
 			int count = 0;
 			for (Iterator<String> iIter = this.oxfordWordsSet.iterator(); iIter.hasNext();) {
 				count ++;
 				String iWord = iIter.next();
-				ArrayList<Node> tmpList = new ArrayList<Node>();
-				for (Iterator<String> jIter = this.oxfordWordsSet.iterator(); jIter.hasNext();) {
-					String jWord = jIter.next();
-					int distance = editUtil.calculate(iWord, jWord);
-					Node node = new Node(jWord, distance);
-					tmpList.add(node);
-				}
-				Collections.sort(tmpList, new Comparator<Node>() {
-
-					@Override
-					public int compare(Node o1, Node o2) {
-						if (o1.distance < o2.distance) {
-							return -1;
-						} else if (o1.distance > o2.distance) {
-							return 1;
-						} else {
-							return 0;
-						}
-					}
-				});
+				ArrayList<Node> tmpList = calcCandidateWords(iWord);
+				
 				int size = tmpList.size() > 10 ? 10 : tmpList.size();
 				String tmpStr = iWord + " ";
 				for (int i = 0; i < size; i++) {
@@ -207,15 +185,60 @@ public class CorpusUtil {
 		}
 	}
 	
-	public HashMap<String, ArrayList<Node>> getCandidateList(){
-		return null;
+	/**
+	 * 计算word
+	 * @param iWord
+	 * @return
+	 */
+	private ArrayList<Node> calcCandidateWords(String iWord){
+		ArrayList<Node> tmpList = new ArrayList<Node>();
+		EditDistanceUtil editUtil = EditDistanceUtil.getInstance();
+		for (Iterator<String> jIter = this.oxfordWordsSet.iterator(); jIter.hasNext();) {
+			String jWord = jIter.next();
+			int distance = editUtil.calculate(iWord, jWord);
+			if (distance > 7) {
+				continue;
+			}
+			Node node = new Node(jWord, distance);
+			tmpList.add(node);
+		}
+		Collections.sort(tmpList, new Comparator<Node>() {
+
+			@Override
+			public int compare(Node o1, Node o2) {
+				if (o1.distance < o2.distance) {
+					return -1;
+				} else if (o1.distance > o2.distance) {
+					return 1;
+				} else {
+					return 0;
+				}
+			}
+		});
+		return tmpList;
+	}
+	
+	/**
+	 * 获得word的候选集合，word也会被包含在里面
+	 * @param word
+	 * @return
+	 */
+	public ArrayList<Node> getCandidateList(String word){
+		if (candidateList.containsKey(word)) {
+			return candidateList.get(word);
+		}
+		ArrayList<Node> tmpList = calcCandidateWords(word);
+		int len = tmpList.size() > 10 ? 10 : tmpList.size();
+		tmpList  = new ArrayList<Node>(tmpList.subList(0, len));
+		return tmpList;
 	}
 
 	public static void main(String[] args) {
 		System.out.println("start:");
 		long start = System.currentTimeMillis();
 		CorpusUtil corpusUtil = CorpusUtil.getInstance();
-		corpusUtil.createCandidateList();
+//		corpusUtil.createCandidateList();
+		corpusUtil.getCandidateList("sdf");
 
 		long end = System.currentTimeMillis();
 		long delay = (end - start);

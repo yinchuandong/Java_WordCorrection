@@ -1,5 +1,6 @@
 package main;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -14,7 +15,7 @@ import util.CorpusUtil;
  */
 public class RealWordCorrect {
 
-	
+	private CorpusUtil corpusUtil;
 
 	private HashSet<String> oxfordWordsSet;
 	/**
@@ -30,8 +31,13 @@ public class RealWordCorrect {
 	 * 转移概率
 	 */
 	private HashMap<String, Double> tranMap;
+	
+	private String[] words;
+	private Node[][] matrix;
+	
 
 	public RealWordCorrect(CorpusUtil corpusUtil) {
+		this.corpusUtil = corpusUtil;
 		this.oxfordWordsSet = corpusUtil.getOxfordWordsSet();
 		this.bigramMap = corpusUtil.getBigramMap();
 		this.bigramSumMap = corpusUtil.getBigramSumMap();
@@ -43,7 +49,15 @@ public class RealWordCorrect {
 	}
 	
 	private void initMatrix(){
-		
+		matrix = new Node[words.length][];
+		for(int i = 0; i < words.length; i++){
+			ArrayList<Node> candidateList = corpusUtil.getCandidateList(words[i]);
+			matrix[i] = new Node[candidateList.size()];
+			for(int j = 0; j < candidateList.size(); j++){
+				Node node = candidateList.get(j);
+				matrix[i][j] = node;
+			}
+		}
 	}
 
 	private void calcTranProb() {
@@ -58,7 +72,10 @@ public class RealWordCorrect {
 	}
 	
 	public void run(String sentence){
+		words = sentence.split(" ");
+		initMatrix();
 		
+		System.out.println("end run");
 	}
 
 	public static void main(String[] args) {
@@ -66,7 +83,7 @@ public class RealWordCorrect {
 		System.out.println("start:");
 		RealWordCorrect model = new RealWordCorrect(CorpusUtil.getInstance());
 		model.init();
-
+		model.run("i am a boy");
 		long end = System.currentTimeMillis();
 		System.out.println("end;  delay: " + (end - start));
 	}
