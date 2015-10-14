@@ -13,6 +13,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+import org.omg.CORBA.PUBLIC_MEMBER;
+
 public class GramUtil {
 
 	public GramUtil(){
@@ -222,6 +224,16 @@ public class GramUtil {
 			newKey = newKey.substring(1);
 		}
 		return newKey;
+	}
+	
+	
+	/**
+	 * 根据编辑距离生成真词纠错的候选集合，
+	 * 并写到文件中
+	 * @param words
+	 */
+	public void generateCandidateList(String[] words){
+		
 	}
 	
 	public static void main(String[] args){

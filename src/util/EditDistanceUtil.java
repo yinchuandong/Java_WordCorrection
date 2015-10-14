@@ -87,6 +87,10 @@ public class EditDistanceUtil {
 		distance = matrix[len1][len2];
 		return distance;
 	}
+	
+	public void getCandidateList(String word){
+		
+	}
 
 	public static void main(String[] args) {
 		long start = System.currentTimeMillis();

@@ -2,15 +2,19 @@ package main;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 
 import util.CorpusUtil;
 
 /**
  * 真词纠错
+ * 
  * @author yinchuandong
  *
  */
 public class RealWordCorrect {
+
+	
 
 	private HashSet<String> oxfordWordsSet;
 	/**
@@ -21,46 +25,50 @@ public class RealWordCorrect {
 	 * 二元语法的总数统计map, eg:N(<BOS>*)
 	 */
 	private HashMap<String, Integer> bigramSumMap;
-	
-	public RealWordCorrect(CorpusUtil corpusUtil){
+
+	/**
+	 * 转移概率
+	 */
+	private HashMap<String, Double> tranMap;
+
+	public RealWordCorrect(CorpusUtil corpusUtil) {
 		this.oxfordWordsSet = corpusUtil.getOxfordWordsSet();
 		this.bigramMap = corpusUtil.getBigramMap();
 		this.bigramSumMap = corpusUtil.getBigramSumMap();
+		this.tranMap = new HashMap<String, Double>();
+	}
+
+	public void init() {
+		calcTranProb();
 	}
 	
-	private double test(String sentence){
-		double frequency = 1.0;
-		int numGram = 0; //分子
-		int numWord = 0;//分母
-		String key;
-		String keySum;
-		String[] wordArr = sentence.split(" ");
-		for (int i = 0; i < wordArr.length - 1; i++) {
-			key = wordArr[i] + "|" + wordArr[i+1];
-			keySum = wordArr[i];
-			if(bigramMap.containsKey(key)){
-				numGram = bigramMap.get(key);
-			}
-			if(bigramSumMap.containsKey(keySum)){
-				numWord = bigramSumMap.get(keySum);
-			}
-			//Laplace data smoothing
-			frequency *= ((double)numGram + 1.0) / (numWord + oxfordWordsSet.size()*10);
-		}
-		return frequency;
-	}
-	
-	
-	public static void main(String[] args){
-		RealWordCorrect model = new RealWordCorrect(CorpusUtil.getInstance());
-//		double f1 = model.test("<BOS> I read a books <EOS>");
-//		double f2 = model.test("<BOS> I read a book <EOS>");
-		double f1 = model.test("<BOS> I read a books <EOS>");
-		double f2 = model.test("<BOS> I read a book <EOS>");
+	private void initMatrix(){
 		
-		System.out.println("f1:" + f1);
-		System.out.println("f2:" + f2);
+	}
+
+	private void calcTranProb() {
+		for (Iterator<String> iter = bigramMap.keySet().iterator(); iter.hasNext();) {
+			String key = iter.next();
+			String[] keyArr = key.split("\\|");
+			String iWord = keyArr[0];
+			double prob = (double) bigramMap.get(key) / bigramSumMap.get(iWord);
+			tranMap.put(key, prob);
+		}
+		System.out.println();
 	}
 	
-	
+	public void run(String sentence){
+		
+	}
+
+	public static void main(String[] args) {
+		long start = System.currentTimeMillis();
+		System.out.println("start:");
+		RealWordCorrect model = new RealWordCorrect(CorpusUtil.getInstance());
+		model.init();
+
+		long end = System.currentTimeMillis();
+		System.out.println("end;  delay: " + (end - start));
+	}
+
 }

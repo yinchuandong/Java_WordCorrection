@@ -9,11 +9,16 @@ public class C {
 	/**
 	 * 二元语法
 	 */
-	public final static String PATH_BIGRAM = "data/bigram.txt";
+	public final static String PATH_BIGRAM = "data_new/w2_.txt";
 	/**
 	 * 三元语法
 	 */
 	public final static String PATH_TRIGRAM = "data/trigram.txt";
+	
+	/**
+	 * 真词纠错的候选集
+	 */
+	public final static String PATH_CANDIDATE_LIST = "data_new/candidate_set.txt";
 	/**
 	 * 语料库
 	 */
