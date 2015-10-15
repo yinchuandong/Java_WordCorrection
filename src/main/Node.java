@@ -41,6 +41,13 @@ public class Node {
 		this.prob = prob;
 		this.preNode = preNode;
 	}
+	
+	
+
+	@Override
+	public Node clone(){
+		return new Node(this.word, this.distance, this.prob, this.preNode);
+	}
 
 	@Override
 	public String toString() {

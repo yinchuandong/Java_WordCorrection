@@ -55,7 +55,7 @@ public class RealWordCorrect {
 			ArrayList<Node> candidateList = corpusUtil.getCandidateList(words[i]);
 			matrix[i] = new Node[candidateList.size()];
 			for (int j = 0; j < candidateList.size(); j++) {
-				Node node = candidateList.get(j);
+				Node node = candidateList.get(j).clone(); //一定要加clone，否则无法display
 				node.prob = 0.0;
 				matrix[i][j] = node;
 			}
@@ -126,7 +126,7 @@ public class RealWordCorrect {
 	public static void main(String[] args) {
 		long start = System.currentTimeMillis();
 		System.out.println("start:");
-		String sentence = "He is a girl";// you are a boy
+		String sentence = "i an an students";// you are a boy
 		System.out.println("原始句子：" + sentence);
 		RealWordCorrect model = new RealWordCorrect(CorpusUtil.getInstance());
 		model.init();
