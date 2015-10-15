@@ -14,6 +14,14 @@ public class C {
 	 * 三元语法
 	 */
 	public final static String PATH_TRIGRAM = "data/trigram.txt";
+	/**
+	 * 初始概率
+	 */
+	public final static String PATH_INIT_PROB = "data_new/init_prob.txt";
+	/**
+	 * 转移概率
+	 */
+	public final static String PATH_TRAN_PROB = "data_new/tran_prob.txt";
 	
 	/**
 	 * 真词纠错的候选集

@@ -21,14 +21,15 @@ public class CorpusUtil {
 	private static CorpusUtil instance = null;
 
 	private HashSet<String> oxfordWordsSet;
+	
 	/**
-	 * 每一项二元语法的map, eg:N(<BOS>|Brown)
+	 * 初始概率map
 	 */
-	private HashMap<String, Integer> bigramMap;
+	private HashMap<String, Double> initProbMap;
 	/**
-	 * 二元语法的总数统计map, eg:N(<BOS>*)
+	 * 转移概率map
 	 */
-	private HashMap<String, Integer> bigramSumMap;
+	private HashMap<String, Double> tranProbMap;
 	/**
 	 * 候选集合 
 	 */
@@ -47,12 +48,13 @@ public class CorpusUtil {
 
 	private void init() {
 		oxfordWordsSet = new HashSet<String>();
-		bigramMap = new HashMap<String, Integer>();
-		bigramSumMap = new HashMap<String, Integer>();
+		initProbMap = new HashMap<String, Double>();
+		tranProbMap = new HashMap<String, Double>();
 		candidateList = new HashMap<String, ArrayList<Node>>();
 
 		loadOxfordWords();
-		loadBigram();
+		loadInitProb();
+		loadTranProb();
 		loadCandidateList();
 	}
 
@@ -75,31 +77,42 @@ public class CorpusUtil {
 		}
 
 	}
-
-	private void loadBigram() {
+	
+	private void loadInitProb(){
 		try {
-			File file = new File(C.PATH_BIGRAM);
+			File file = new File(C.PATH_INIT_PROB);
 			BufferedReader reader = new BufferedReader(new FileReader(file));
 			String buff = null;
 			while ((buff = reader.readLine()) != null) {
-				if (buff.equals("")) {
+				String[] lineArr = buff.split("\t");
+				if (lineArr.length < 2) {
 					continue;
 				}
+				String key = lineArr[0] ;
+				double prob = Double.parseDouble(lineArr[1]);
+				initProbMap.put(key, prob);
+			}
+			reader.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void loadTranProb(){
+		try {
+			File file = new File(C.PATH_TRAN_PROB);
+			BufferedReader reader = new BufferedReader(new FileReader(file));
+			String buff = null;
+			while ((buff = reader.readLine()) != null) {
 				String[] lineArr = buff.split("\t");
 				if (lineArr.length < 3) {
 					continue;
 				}
-				String key = lineArr[1] + "|" + lineArr[2];// key of bigramMap
-				String keySum = lineArr[1];// key of bigramSumMap
-				int count = Integer.parseInt(lineArr[0]);// word frequency
-
-				bigramMap.put(key, count);
-				if (!bigramSumMap.containsKey(keySum)) {
-					bigramSumMap.put(keySum, count);
-				} else {
-					bigramSumMap.put(keySum, bigramSumMap.get(keySum) + count);
-				}
-
+				String key = lineArr[0] + "|" + lineArr[1];// key of bigramMap
+				double prob = Double.parseDouble(lineArr[2]);// word frequency
+				tranProbMap.put(key, prob);
 			}
 			reader.close();
 		} catch (FileNotFoundException e) {
@@ -141,13 +154,6 @@ public class CorpusUtil {
 		return oxfordWordsSet;
 	}
 
-	public HashMap<String, Integer> getBigramMap() {
-		return bigramMap;
-	}
-
-	public HashMap<String, Integer> getBigramSumMap() {
-		return bigramSumMap;
-	}
 
 	/**
 	 * 根据编辑距离生成真词纠错的候选集合， 并写到文件中
@@ -218,6 +224,15 @@ public class CorpusUtil {
 		return tmpList;
 	}
 	
+	
+	public HashMap<String, Double> getInitProbMap() {
+		return initProbMap;
+	}
+
+	public HashMap<String, Double> getTranProbMap() {
+		return tranProbMap;
+	}
+
 	/**
 	 * 获得word的候选集合，word也会被包含在里面
 	 * @param word
@@ -232,13 +247,14 @@ public class CorpusUtil {
 		tmpList  = new ArrayList<Node>(tmpList.subList(0, len));
 		return tmpList;
 	}
-
+	
+	
 	public static void main(String[] args) {
 		System.out.println("start:");
 		long start = System.currentTimeMillis();
 		CorpusUtil corpusUtil = CorpusUtil.getInstance();
 //		corpusUtil.createCandidateList();
-		corpusUtil.getCandidateList("sdf");
+		corpusUtil.getCandidateList("she");
 
 		long end = System.currentTimeMillis();
 		long delay = (end - start);

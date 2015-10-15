@@ -16,10 +16,96 @@ import java.util.List;
 import org.omg.CORBA.PUBLIC_MEMBER;
 
 public class GramUtil {
+	
+	/**
+	 * 每一项二元语法的map, eg:N(<BOS>|Brown)
+	 */
+	private HashMap<String, Integer> bigramMap;
+	/**
+	 * 二元语法的总数统计map, eg:N(<BOS>*)
+	 */
+	private HashMap<String, Integer> bigramSumMap;
 
 	public GramUtil(){
-		
+		bigramMap = new HashMap<String, Integer>();
+		bigramSumMap = new HashMap<String, Integer>();
 	}
+	
+	/**
+	 * 加载二元语法文件
+	 */
+	private void loadBigram() {
+		try {
+			File file = new File(C.PATH_BIGRAM);
+			BufferedReader reader = new BufferedReader(new FileReader(file));
+			String buff = null;
+			while ((buff = reader.readLine()) != null) {
+				if (buff.equals("")) {
+					continue;
+				}
+				String[] lineArr = buff.split("\t");
+				if (lineArr.length < 3) {
+					continue;
+				}
+				String key = lineArr[1] + "|" + lineArr[2];// key of bigramMap
+				String keySum = lineArr[1];// key of bigramSumMap
+				int count = Integer.parseInt(lineArr[0]);// word frequency
+
+				bigramMap.put(key, count);
+				if (!bigramSumMap.containsKey(keySum)) {
+					bigramSumMap.put(keySum, count);
+				} else {
+					bigramSumMap.put(keySum, bigramSumMap.get(keySum) + count);
+				}
+
+			}
+			reader.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void createTranProbMap(){
+		try {
+			PrintWriter writer = new PrintWriter(new File(C.PATH_TRAN_PROB));
+			
+			for (Iterator<String> iter = bigramMap.keySet().iterator(); iter.hasNext();) {
+				String key = iter.next();
+				String[] keyArr = key.split("\\|");
+				String iWord = keyArr[0];
+				double prob = (double) bigramMap.get(key) / bigramSumMap.get(iWord);
+				writer.println(keyArr[0] + "\t" + keyArr[1] + "\t" + prob);
+			}
+			writer.flush();
+			writer.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void createInitProbMap(){
+		try {
+			PrintWriter writer = new PrintWriter(new File(C.PATH_INIT_PROB));
+			int wordSum = 0;
+			for (Iterator<String> iter = bigramSumMap.keySet().iterator(); iter.hasNext();) {
+				String key = iter.next();
+				wordSum += bigramSumMap.get(key);
+				
+			}
+			for (Iterator<String> iter = bigramSumMap.keySet().iterator(); iter.hasNext();) {
+				String key = iter.next();
+				double prob = (double)bigramSumMap.get(key) / wordSum;
+				writer.println(key + "\t" + prob);
+			}
+			writer.flush();
+			writer.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 
 	/**
 	 * 生成二元语法
