@@ -13,6 +13,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+import main.Node;
+
 import org.omg.CORBA.PUBLIC_MEMBER;
 
 public class GramUtil {
@@ -67,6 +69,34 @@ public class GramUtil {
 		}
 	}
 	
+	
+	/**
+	 * 创建初始概率
+	 */
+	private void createInitProbMap(){
+		try {
+			PrintWriter writer = new PrintWriter(new File(C.PATH_INIT_PROB));
+			int wordSum = 0;
+			for (Iterator<String> iter = bigramSumMap.keySet().iterator(); iter.hasNext();) {
+				String key = iter.next();
+				wordSum += bigramSumMap.get(key);
+				
+			}
+			for (Iterator<String> iter = bigramSumMap.keySet().iterator(); iter.hasNext();) {
+				String key = iter.next();
+				double prob = (double)bigramSumMap.get(key) / wordSum;
+				writer.println(key + "\t" + prob);
+			}
+			writer.flush();
+			writer.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * 创建转移概率
+	 */
 	private void createTranProbMap(){
 		try {
 			PrintWriter writer = new PrintWriter(new File(C.PATH_TRAN_PROB));
@@ -85,19 +115,21 @@ public class GramUtil {
 		}
 	}
 	
-	private void createInitProbMap(){
+	/**
+	 * 创建发射概率,这里需要重新计算，按列来计算，而不是行
+	 */
+	private void createEmitProbMap(){
 		try {
-			PrintWriter writer = new PrintWriter(new File(C.PATH_INIT_PROB));
-			int wordSum = 0;
-			for (Iterator<String> iter = bigramSumMap.keySet().iterator(); iter.hasNext();) {
+			PrintWriter writer = new PrintWriter(new File(C.PATH_EMIT_PROB));
+			CorpusUtil util = CorpusUtil.getInstance();
+			HashMap<String, ArrayList<Node>> candidateMap = util.getCandidateMap();
+			for (Iterator<String> iter = candidateMap.keySet().iterator(); iter.hasNext();) {
 				String key = iter.next();
-				wordSum += bigramSumMap.get(key);
-				
-			}
-			for (Iterator<String> iter = bigramSumMap.keySet().iterator(); iter.hasNext();) {
-				String key = iter.next();
-				double prob = (double)bigramSumMap.get(key) / wordSum;
-				writer.println(key + "\t" + prob);
+				ArrayList<Node> list = candidateMap.get(key);
+				for (Node node : list) {
+					double prob = 10.0 / (10.0 + node.distance);
+					writer.println(key + "\t" + node.word + "\t" + prob);
+				}
 			}
 			writer.flush();
 			writer.close();
@@ -328,7 +360,8 @@ public class GramUtil {
 		
 		GramUtil util = new GramUtil();
 //		util.generateBigram();
-		util.generateTrigram();
+//		util.generateTrigram();
+		util.createEmitProbMap();
 		
 		long end = System.currentTimeMillis();
 		long delay = (end - start);

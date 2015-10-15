@@ -22,6 +22,10 @@ public class C {
 	 * 转移概率
 	 */
 	public final static String PATH_TRAN_PROB = "data_new/tran_prob.txt";
+	/**
+	 * 发射概率
+	 */
+	public final static String PATH_EMIT_PROB = "data_new/emit_prob.txt";
 	
 	/**
 	 * 真词纠错的候选集

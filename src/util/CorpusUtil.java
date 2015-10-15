@@ -31,9 +31,13 @@ public class CorpusUtil {
 	 */
 	private HashMap<String, Double> tranProbMap;
 	/**
+	 * 发射概率map
+	 */
+	private HashMap<String, Double> emitProbMap;
+	/**
 	 * 候选集合 
 	 */
-	private HashMap<String, ArrayList<Node>> candidateList;
+	private HashMap<String, ArrayList<Node>> candidateMap;
 
 	private CorpusUtil() {
 		init();
@@ -50,7 +54,8 @@ public class CorpusUtil {
 		oxfordWordsSet = new HashSet<String>();
 		initProbMap = new HashMap<String, Double>();
 		tranProbMap = new HashMap<String, Double>();
-		candidateList = new HashMap<String, ArrayList<Node>>();
+		emitProbMap = new HashMap<String, Double>();
+		candidateMap = new HashMap<String, ArrayList<Node>>();
 
 		loadOxfordWords();
 		loadInitProb();
@@ -110,9 +115,31 @@ public class CorpusUtil {
 				if (lineArr.length < 3) {
 					continue;
 				}
-				String key = lineArr[0] + "|" + lineArr[1];// key of bigramMap
-				double prob = Double.parseDouble(lineArr[2]);// word frequency
+				String key = lineArr[0] + "|" + lineArr[1];
+				double prob = Double.parseDouble(lineArr[2]);
 				tranProbMap.put(key, prob);
+			}
+			reader.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void loadEmitProb(){
+		try {
+			File file = new File(C.PATH_EMIT_PROB);
+			BufferedReader reader = new BufferedReader(new FileReader(file));
+			String buff = null;
+			while ((buff = reader.readLine()) != null) {
+				String[] lineArr = buff.split("\t");
+				if (lineArr.length < 3) {
+					continue;
+				}
+				String key = lineArr[0] + "|" + lineArr[1];
+				double prob = Double.parseDouble(lineArr[2]);
+				emitProbMap.put(key, prob);
 			}
 			reader.close();
 		} catch (FileNotFoundException e) {
@@ -136,11 +163,11 @@ public class CorpusUtil {
 				for (String item : lineArr) {
 					String[] arr = item.split(",");
 					String word = arr[0];
-					int distance = Integer.parseInt(arr[1]);
+					double distance = Double.parseDouble(arr[1]);
 					Node node = new Node(word, distance);
 					list.add(node);
 				}
-				candidateList.put(key, list);
+				candidateMap.put(key, list);
 			}
 			reader.close();
 		} catch (FileNotFoundException e) {
@@ -233,14 +260,22 @@ public class CorpusUtil {
 		return tranProbMap;
 	}
 
+	public HashMap<String, Double> getEmitProbMap() {
+		return emitProbMap;
+	}
+
+	public HashMap<String, ArrayList<Node>> getCandidateMap() {
+		return candidateMap;
+	}
+
 	/**
 	 * 获得word的候选集合，word也会被包含在里面
 	 * @param word
 	 * @return
 	 */
 	public ArrayList<Node> getCandidateList(String word){
-		if (candidateList.containsKey(word)) {
-			return candidateList.get(word);
+		if (candidateMap.containsKey(word)) {
+			return candidateMap.get(word);
 		}
 		ArrayList<Node> tmpList = calcCandidateWords(word);
 		int len = tmpList.size() > 10 ? 10 : tmpList.size();

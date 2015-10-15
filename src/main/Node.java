@@ -10,14 +10,14 @@ public class Node {
 	/** 词的内容 */
 	public String word;
 	/** 当前词的edit distance */
-	public int distance = 0;
+	public double distance = 0.0;
 	/** 当前的维特比概率 */
 	public double prob = 0.0;
 	/** 前驱节点 */
 	public Node preNode = null;
 
 	
-	public Node(String word, int distance) {
+	public Node(String word, double distance) {
 		super();
 		this.word = word;
 		this.distance = distance;
@@ -34,7 +34,7 @@ public class Node {
 	 * @param preNode
 	 *            前驱节点
 	 */
-	public Node(String word, int distance, double prob, Node preNode) {
+	public Node(String word, double distance, double prob, Node preNode) {
 		super();
 		this.word = word;
 		this.distance = distance;

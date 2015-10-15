@@ -40,15 +40,17 @@ public class NonWordCorrect {
 			list.add(entry);
 		}
 		
-		System.setProperty("java.util.Arrays.useLegacyMergeSort", "true");
 		Collections.sort(list, new Comparator<WordNode>() {
 			@Override
 			public int compare(WordNode o1, WordNode o2) {
 				//正序
 				if(o1.distance > o2.distance){
 					return 1;
+				}else if (o1.distance < o2.distance) {
+					return -1;
+				}else{
+					return 0;
 				}
-				return -1;
 			}
 		});
 		
@@ -74,7 +76,7 @@ public class NonWordCorrect {
 	
 	public static void main(String[] args){
 		NonWordCorrect model = new NonWordCorrect(CorpusUtil.getInstance());
-		model.detectOne("plays");
+		model.detectOne("plasds");
 		
 	}
 	
