@@ -55,7 +55,7 @@ public class RealWordCorrect {
 			ArrayList<Node> candidateList = corpusUtil.getCandidateList(words[i]);
 			matrix[i] = new Node[candidateList.size()];
 			for (int j = 0; j < candidateList.size(); j++) {
-				Node node = candidateList.get(j).clone(); //一定要加clone，否则无法display
+				Node node = candidateList.get(j).clone(); // 一定要加clone，否则无法display
 				node.prob = 0.0;
 				matrix[i][j] = node;
 			}
@@ -71,10 +71,10 @@ public class RealWordCorrect {
 		}
 	}
 
-	public void run(String sentence) {
-		words = sentence.split(" ");
-		initMatrix();
-
+	/**
+	 * 采用二元语法计算
+	 */
+	private void runBigram() {
 		for (int t = 1; t < words.length; t++) {
 			Node[] curNodes = matrix[t];
 			Node[] preNodes = matrix[t - 1];
@@ -94,7 +94,7 @@ public class RealWordCorrect {
 						maxProb = tmpProb;
 					}
 				}
-				
+
 				String emitKey = words[t] + "|" + curNodes[i].word;
 				double emitProb = emitProbMap.containsKey(emitKey) ? emitProbMap.get(emitKey) : MIN_PROB;
 				maxProb = maxProb * emitProb;
@@ -109,6 +109,13 @@ public class RealWordCorrect {
 				maxFinalNode = finalRow[k];
 			}
 		}
+
+	}
+
+	public void run(String sentence) {
+		words = sentence.split(" ");
+		initMatrix();
+		runBigram();
 
 		System.out.println("end run");
 	}
@@ -126,7 +133,10 @@ public class RealWordCorrect {
 	public static void main(String[] args) {
 		long start = System.currentTimeMillis();
 		System.out.println("start:");
-		String sentence = "i an an students";// you are a boy
+		/*
+		 * you is a boy 用来测试emit prob
+		 */
+		String sentence = "he do love you";
 		System.out.println("原始句子：" + sentence);
 		RealWordCorrect model = new RealWordCorrect(CorpusUtil.getInstance());
 		model.init();

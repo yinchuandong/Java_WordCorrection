@@ -33,7 +33,7 @@ public class NonWordCorrect {
 		List<WordNode> list = new ArrayList<WordNode>();
 		
 		for (String word : oxfordWordsSet) {
-			int distance = distanceUtil.calculate(unknownWord, word);
+			double distance = distanceUtil.calculate(unknownWord, word);
 			WordNode entry = new WordNode();
 			entry.word = word;
 			entry.distance = distance;
@@ -70,7 +70,7 @@ public class NonWordCorrect {
 	 */
 	private class WordNode{
 		public String word;
-		public int distance;
+		public double distance;
 	}
 		
 	

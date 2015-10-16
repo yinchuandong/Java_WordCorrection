@@ -54,6 +54,9 @@ public class Node {
 		return "Node [word=" + word + ", distance=" + distance + ", prob=" + prob + "]";
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		return this.word.equals(((Node)obj).word);
+	}
 
-	
 }

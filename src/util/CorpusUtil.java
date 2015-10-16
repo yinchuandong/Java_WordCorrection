@@ -35,6 +35,10 @@ public class CorpusUtil {
 	 */
 	private HashMap<String, Double> emitProbMap;
 	/**
+	 * 计算混淆词集
+	 */
+	HashMap<String, String[]> confusingMap;
+	/**
 	 * 候选集合 
 	 */
 	private HashMap<String, ArrayList<Node>> candidateMap;
@@ -55,11 +59,14 @@ public class CorpusUtil {
 		initProbMap = new HashMap<String, Double>();
 		tranProbMap = new HashMap<String, Double>();
 		emitProbMap = new HashMap<String, Double>();
+		confusingMap = new HashMap<String, String[]>();
 		candidateMap = new HashMap<String, ArrayList<Node>>();
 
 		loadOxfordWords();
 		loadInitProb();
 		loadTranProb();
+//		loadEmitProb();
+		loadConfusingWord();
 		loadCandidateList();
 	}
 
@@ -228,7 +235,7 @@ public class CorpusUtil {
 		EditDistanceUtil editUtil = EditDistanceUtil.getInstance();
 		for (Iterator<String> jIter = this.oxfordWordsSet.iterator(); jIter.hasNext();) {
 			String jWord = jIter.next();
-			int distance = editUtil.calculate(iWord, jWord);
+			double distance = editUtil.calculate(iWord, jWord);
 			if (distance > 7) {
 				continue;
 			}
@@ -248,6 +255,17 @@ public class CorpusUtil {
 				}
 			}
 		});
+		int len = tmpList.size() > 10 ? 10 : tmpList.size();
+		tmpList  = new ArrayList<Node>(tmpList.subList(0, len));
+		String[] confusingWords = confusingMap.get(iWord);
+		if (confusingWords != null) {
+			for (String confusingWord : confusingWords) {
+				Node node = new Node(confusingWord, 0.1);
+				if (!tmpList.contains(node)) {
+					tmpList.add(node);
+				}
+			}
+		}
 		return tmpList;
 	}
 	
@@ -274,13 +292,42 @@ public class CorpusUtil {
 	 * @return
 	 */
 	public ArrayList<Node> getCandidateList(String word){
-		if (candidateMap.containsKey(word)) {
-			return candidateMap.get(word);
-		}
+//		if (candidateMap.containsKey(word)) {
+//			return candidateMap.get(word);
+//		}
 		ArrayList<Node> tmpList = calcCandidateWords(word);
-		int len = tmpList.size() > 10 ? 10 : tmpList.size();
-		tmpList  = new ArrayList<Node>(tmpList.subList(0, len));
 		return tmpList;
+	}
+	
+	
+	private void loadConfusingWord(){
+		try {
+			File file = new File(C.PATH_CONFUSING_WORD);
+			BufferedReader reader = new BufferedReader(new FileReader(file));
+			String buff = null;
+			ArrayList<String[]> list = new ArrayList<String[]>();
+			while ((buff = reader.readLine()) != null) {
+				if (buff.startsWith("#")) {
+					continue;
+				}
+				String[] wordArr = buff.split(" ");
+				list.add(wordArr);
+			}
+			reader.close();
+			
+			for (String[] wordArr : list) {
+				for (String word : wordArr) {
+					if (!confusingMap.containsKey(word)) {
+						confusingMap.put(word, wordArr);
+					}
+				}
+			}
+			System.out.println("end loadConfusingWord");
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	
@@ -288,8 +335,15 @@ public class CorpusUtil {
 		System.out.println("start:");
 		long start = System.currentTimeMillis();
 		CorpusUtil corpusUtil = CorpusUtil.getInstance();
+		
+//		corpusUtil.loadConfusingWord();
+		
 //		corpusUtil.createCandidateList();
-		corpusUtil.getCandidateList("she");
+		
+		ArrayList<Node> list = corpusUtil.calcCandidateWords("are");
+		for (Node node : list) {
+			System.out.println(node);
+		}
 
 		long end = System.currentTimeMillis();
 		long delay = (end - start);

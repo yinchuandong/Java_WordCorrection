@@ -27,6 +27,8 @@ public class C {
 	 */
 	public final static String PATH_EMIT_PROB = "data_new/emit_prob.txt";
 	
+	public final static String PATH_CONFUSING_WORD = "data_new/confusing_word.txt";
+	
 	/**
 	 * 真词纠错的候选集
 	 */
