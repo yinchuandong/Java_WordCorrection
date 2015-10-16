@@ -135,8 +135,9 @@ public class RealWordCorrect {
 		System.out.println("start:");
 		/*
 		 * you is a boy 用来测试emit prob
+		 * he do love you
 		 */
-		String sentence = "he do love you";
+		String sentence = "you parent do love you";
 		System.out.println("原始句子：" + sentence);
 		RealWordCorrect model = new RealWordCorrect(CorpusUtil.getInstance());
 		model.init();
