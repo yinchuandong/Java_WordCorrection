@@ -46,11 +46,14 @@ public class RealWordCorrect {
 		this.emitProbMap = corpusUtil.getEmitProbMap();
 	}
 
-	public void init() {
+	public void init(String[] words) {
+		this.words = words;
+		this.maxFinalNode = null;
+		this.matrix = new Node[words.length][];
+		this.initMatrix();
 	}
 
 	private void initMatrix() {
-		matrix = new Node[words.length][];
 		for (int i = 0; i < words.length; i++) {
 			ArrayList<Node> candidateList = corpusUtil.getCandidateList(words[i]);
 			matrix[i] = new Node[candidateList.size()];
@@ -75,6 +78,7 @@ public class RealWordCorrect {
 	 * 采用二元语法计算
 	 */
 	private void runBigram() {
+		
 		for (int t = 1; t < words.length; t++) {
 			Node[] curNodes = matrix[t];
 			Node[] preNodes = matrix[t - 1];
@@ -111,12 +115,31 @@ public class RealWordCorrect {
 		}
 
 	}
+	
+	private String[] decode(){
+		String[] result = new String[words.length];
+		Node tmpNode = maxFinalNode;
+		int i = words.length - 1;
+		while (tmpNode != null) {
+			result[i--] = tmpNode.word;
+			tmpNode = tmpNode.preNode;
+		}
+		return result;
+	}
 
-	public void run(String sentence) {
-		words = sentence.split(" ");
-		initMatrix();
-		runBigram();
-
+	public void run(String article) {
+		article = article.replaceAll("\\s+", " ");
+		String[] oldSentences = article.split("[,.;]");
+		
+		String[][] newSentences = new String[oldSentences.length][];
+		for (int i = 0; i < oldSentences.length; i++) {
+			String oldSent = oldSentences[i].trim();
+			init(oldSent.split("\\s"));
+			runBigram();
+//			String[] newSent = decode();
+			newSentences[i] = decode();
+			display();
+		}
 		System.out.println("end run");
 	}
 
@@ -137,13 +160,13 @@ public class RealWordCorrect {
 		 * you is a boy 用来测试emit prob
 		 * he do love you
 		 * you parent do love you
+		 * there is lots of apple which I like
 		 */
-		String sentence = "you parent do love you";
+//		String sentence = "he am a boys. there is lots of appe whih I like.";
+		String sentence = "she do love you.";
 		System.out.println("原始句子：" + sentence);
 		RealWordCorrect model = new RealWordCorrect(CorpusUtil.getInstance());
-		model.init();
 		model.run(sentence);
-		model.display();
 		long end = System.currentTimeMillis();
 		System.out.println("end;  delay: " + (end - start));
 	}
