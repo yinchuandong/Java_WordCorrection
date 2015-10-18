@@ -55,6 +55,7 @@ public class RealWordCorrect {
 
 	private void initMatrix() {
 		for (int i = 0; i < words.length; i++) {
+			words[i] = words[i].toLowerCase();
 			ArrayList<Node> candidateList = corpusUtil.getCandidateList(words[i]);
 			matrix[i] = new Node[candidateList.size()];
 			for (int j = 0; j < candidateList.size(); j++) {
@@ -68,9 +69,10 @@ public class RealWordCorrect {
 		for (int j = 0; j < matrix[0].length; j++) {
 			Node node = matrix[0][j];
 			double initProb = initProbMap.containsKey(node.word) ? initProbMap.get(node.word) : MIN_PROB;
-			String emitKey = words[0] + "|" + node.word;
-			double emitProb = emitProbMap.containsKey(emitKey) ? emitProbMap.get(emitKey) : MIN_PROB;
-			node.prob = initProb * emitProb;
+//			String emitKey = words[0] + "|" + node.word;
+//			double emitProb = emitProbMap.containsKey(emitKey) ? emitProbMap.get(emitKey) : MIN_PROB;
+//			node.prob = initProb * emitProb;
+			node.prob = initProb;
 		}
 	}
 
@@ -99,9 +101,9 @@ public class RealWordCorrect {
 					}
 				}
 
-				String emitKey = words[t] + "|" + curNodes[i].word;
-				double emitProb = emitProbMap.containsKey(emitKey) ? emitProbMap.get(emitKey) : MIN_PROB;
-				maxProb = maxProb * emitProb;
+//				String emitKey = words[t] + "|" + curNodes[i].word;
+//				double emitProb = emitProbMap.containsKey(emitKey) ? emitProbMap.get(emitKey) : MIN_PROB;
+//				maxProb = maxProb * emitProb;
 				curNodes[i].prob = maxProb;
 				curNodes[i].preNode = maxPreNode;
 			}
@@ -162,8 +164,15 @@ public class RealWordCorrect {
 		 * you parent do love you
 		 * there is lots of apple which I like
 		 */
-//		String sentence = "he am a boys. there is lots of appe whih I like.";
-		String sentence = "she do love you.";
+		String sentence = "";
+//		sentence += "he am a boys. I have a apple. you is a boy. there is lots of appe whih I like.";
+//		sentence += "he do love you. she do love you.";
+//		sentence += "my name as John.";
+//		sentence += "I want too eat pizza this afternoon among my parent.";
+//		sentence += "the weather is good today.";
+//		sentence += "His favourite sport is basketball";
+		sentence += "he like making faces or telling jokes";
+//		sentence += "he like you";
 		System.out.println("原始句子：" + sentence);
 		RealWordCorrect model = new RealWordCorrect(CorpusUtil.getInstance());
 		model.run(sentence);

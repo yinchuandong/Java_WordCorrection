@@ -156,6 +156,35 @@ public class CorpusUtil {
 		}
 	}
 	
+	private void loadConfusingWord(){
+		try {
+			File file = new File(C.PATH_CONFUSING_WORD);
+			BufferedReader reader = new BufferedReader(new FileReader(file));
+			String buff = null;
+			ArrayList<String[]> list = new ArrayList<String[]>();
+			while ((buff = reader.readLine()) != null) {
+				if (buff.startsWith("#")) {
+					continue;
+				}
+				String[] wordArr = buff.split(" ");
+				list.add(wordArr);
+			}
+			reader.close();
+			
+			for (String[] wordArr : list) {
+				for (String word : wordArr) {
+					if (!confusingMap.containsKey(word)) {
+						confusingMap.put(word, wordArr);
+					}
+				}
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	private void loadCandidateList() {
 		try {
 			File file = new File(C.PATH_CANDIDATE_LIST);
@@ -236,7 +265,7 @@ public class CorpusUtil {
 		for (Iterator<String> jIter = this.oxfordWordsSet.iterator(); jIter.hasNext();) {
 			String jWord = jIter.next();
 			double distance = editUtil.calculate(iWord, jWord);
-			if (distance > 7) {
+			if (distance > 1) {
 				continue;
 			}
 			Node node = new Node(jWord, distance);
@@ -294,54 +323,26 @@ public class CorpusUtil {
 	public ArrayList<Node> getCandidateList(String word){
 		ArrayList<Node> tmpList = null;
 		//从文件中直接读取
-		if (candidateMap.containsKey(word)) {
-			tmpList = candidateMap.get(word);
-			//由于生产一次candidate_set耗时太长，测试时就加上下面的代码
-			String[] confusingWords = confusingMap.get(word);
-			if (confusingWords != null) {
-				for (String confusingWord : confusingWords) {
-					Node node = new Node(confusingWord, 0.1);
-					if (!tmpList.contains(node)) {
-						tmpList.add(node);
-					}
-				}
-			}
-			return tmpList;
-		}
+//		if (candidateMap.containsKey(word)) {
+//			tmpList = candidateMap.get(word);
+//			//由于生产一次candidate_set耗时太长，测试时就加上下面的代码
+//			String[] confusingWords = confusingMap.get(word);
+//			if (confusingWords != null) {
+////				tmpList.clear();
+//				for (String confusingWord : confusingWords) {
+//					Node node = new Node(confusingWord, 0.1);
+//					if (!tmpList.contains(node)) {
+//						tmpList.add(node);
+//					}
+//				}
+//			}
+//			return tmpList;
+//		}
 		//在线计算
 		tmpList = calcCandidateWords(word);
 		return tmpList;
 	}
 	
-	
-	private void loadConfusingWord(){
-		try {
-			File file = new File(C.PATH_CONFUSING_WORD);
-			BufferedReader reader = new BufferedReader(new FileReader(file));
-			String buff = null;
-			ArrayList<String[]> list = new ArrayList<String[]>();
-			while ((buff = reader.readLine()) != null) {
-				if (buff.startsWith("#")) {
-					continue;
-				}
-				String[] wordArr = buff.split(" ");
-				list.add(wordArr);
-			}
-			reader.close();
-			
-			for (String[] wordArr : list) {
-				for (String word : wordArr) {
-					if (!confusingMap.containsKey(word)) {
-						confusingMap.put(word, wordArr);
-					}
-				}
-			}
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
 	
 	
 	public static void main(String[] args) {
@@ -353,7 +354,8 @@ public class CorpusUtil {
 		
 //		corpusUtil.createCandidateList();
 		
-		ArrayList<Node> list = corpusUtil.calcCandidateWords("are");
+//		ArrayList<Node> list = corpusUtil.calcCandidateWords("are");
+		ArrayList<Node> list = corpusUtil.getCandidateList("likes");
 		for (Node node : list) {
 			System.out.println(node);
 		}

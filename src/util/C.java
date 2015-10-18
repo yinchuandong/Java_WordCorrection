@@ -9,7 +9,7 @@ public class C {
 	/**
 	 * 二元语法
 	 */
-	public final static String PATH_BIGRAM = "data_new/w2_.txt";
+	public final static String PATH_BIGRAM = "data/w2_.txt";
 	/**
 	 * 三元语法
 	 */
