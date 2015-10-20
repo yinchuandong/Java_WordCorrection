@@ -13,7 +13,10 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import net.sf.json.JSONObject;
 import main.Node;
 
 public class CorpusUtil {
@@ -37,11 +40,15 @@ public class CorpusUtil {
 	/**
 	 * 计算混淆词集
 	 */
-	HashMap<String, String[]> confusingMap;
+	private HashMap<String, String[]> confusingMap;
 	/**
 	 * 候选集合 
 	 */
 	private HashMap<String, ArrayList<Node>> candidateMap;
+	/**
+	 * 词典的集合，包括词典的解释
+	 */
+	private HashMap<String, String> dictMap;
 
 	private CorpusUtil() {
 		init();
@@ -61,6 +68,7 @@ public class CorpusUtil {
 		emitProbMap = new HashMap<String, Double>();
 		confusingMap = new HashMap<String, String[]>();
 		candidateMap = new HashMap<String, ArrayList<Node>>();
+		dictMap = new HashMap<String, String>();
 
 		loadOxfordWords();
 		loadInitProb();
@@ -69,6 +77,9 @@ public class CorpusUtil {
 		loadCandidateList();
 	}
 
+	/**
+	 * 加载牛津词典，只有单词
+	 */
 	private void loadOxfordWords() {
 		try {
 			File file = new File(C.PATH_OXFORD_WORDS);
@@ -89,6 +100,9 @@ public class CorpusUtil {
 
 	}
 	
+	/**
+	 * 加载初始概率
+	 */
 	private void loadInitProb(){
 		try {
 			File file = new File(C.PATH_INIT_PROB);
@@ -111,6 +125,9 @@ public class CorpusUtil {
 		}
 	}
 	
+	/**
+	 * 加载转移概率
+	 */
 	private void loadTranProb(){
 		try {
 			File file = new File(C.PATH_TRAN_PROB);
@@ -156,6 +173,9 @@ public class CorpusUtil {
 		}
 	}
 	
+	/**
+	 * 加载易混淆词
+	 */
 	private void loadConfusingWord(){
 		try {
 			File file = new File(C.PATH_CONFUSING_WORD);
@@ -185,6 +205,9 @@ public class CorpusUtil {
 		}
 	}
 	
+	/**
+	 * 加载候选集列表
+	 */
 	private void loadCandidateList() {
 		try {
 			File file = new File(C.PATH_CANDIDATE_LIST);
@@ -212,10 +235,31 @@ public class CorpusUtil {
 			e.printStackTrace();
 		}
 	}
-
-	public HashSet<String> getOxfordWordsSet() {
-		return oxfordWordsSet;
+	
+	/**
+	 * 加载词典，包含单词的翻译，需要加载，之后才能调用其相应的get方法
+	 */
+	public void loadDictMap() {
+		try {
+			// 加载词库
+			String filename = "/Users/yinchuandong/PycharmProjects/python_dict/out/newList.json";
+			BufferedReader reader = new BufferedReader(new FileReader(new File(filename)));
+			String buff = null;
+			while ((buff = reader.readLine()) != null) {
+				Pattern pattern = Pattern.compile("\"word\":\\s+\"(\\w+)\"");
+				Matcher matcher = pattern.matcher(buff);
+				if (!matcher.find()) {
+					continue;
+				}
+				String word = matcher.group(1);
+				dictMap.put(word, buff);
+			}
+			reader.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
+
 
 	/**
 	 * 首字母大写
@@ -267,6 +311,13 @@ public class CorpusUtil {
 		return tmpList;
 	}
 	
+	/**
+	 * 获得牛津词典
+	 * @return
+	 */
+	public HashSet<String> getOxfordWordsSet() {
+		return oxfordWordsSet;
+	}
 	
 	public HashMap<String, Double> getInitProbMap() {
 		return initProbMap;
@@ -297,7 +348,6 @@ public class CorpusUtil {
 			//由于生产一次candidate_set耗时太长，测试时就加上下面的代码
 			String[] confusingWords = confusingMap.get(word);
 			if (confusingWords != null) {
-//				tmpList.clear();
 				for (String confusingWord : confusingWords) {
 					Node node = new Node(confusingWord, 0.1);
 					if (!tmpList.contains(node)) {
@@ -312,23 +362,26 @@ public class CorpusUtil {
 		return tmpList;
 	}
 	
-	
-	
+	/**
+	 * 获得词典解释
+	 * @return
+	 */
+	public HashMap<String, String> getDictMap() {
+		return dictMap;
+	}
+
 	public static void main(String[] args) {
 		System.out.println("start:");
 		long start = System.currentTimeMillis();
+		
 		CorpusUtil corpusUtil = CorpusUtil.getInstance();
-		
-//		corpusUtil.loadConfusingWord();
-		
-//		corpusUtil.createCandidateList();
 		
 //		ArrayList<Node> list = corpusUtil.calcCandidateWords("are");
 		ArrayList<Node> list = corpusUtil.getCandidateList("like");
 		for (Node node : list) {
 			System.out.println(node);
 		}
-
+		corpusUtil.loadDictMap();
 		long end = System.currentTimeMillis();
 		long delay = (end - start);
 		System.out.println("delay: " + delay + "ms");
