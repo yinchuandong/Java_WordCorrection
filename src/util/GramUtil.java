@@ -385,9 +385,6 @@ public class GramUtil {
 		GramUtil util = new GramUtil();
 		util.createInitProbMap();
 		util.createTranProbMap();
-//		util.generateBigram();
-//		util.generateTrigram();
-//		util.createEmitProbMap();
 		
 		long end = System.currentTimeMillis();
 		long delay = (end - start);

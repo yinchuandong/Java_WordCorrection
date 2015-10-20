@@ -311,7 +311,7 @@ public class CorpusUtil {
 //		corpusUtil.createCandidateList();
 		
 //		ArrayList<Node> list = corpusUtil.calcCandidateWords("are");
-		ArrayList<Node> list = corpusUtil.getCandidateList("lik");
+		ArrayList<Node> list = corpusUtil.getCandidateList("like");
 		for (Node node : list) {
 			System.out.println(node);
 		}

@@ -172,8 +172,8 @@ public class RealWordCorrect {
 //		sentence += "I want too eat pizza this afternoon among my parent.";
 //		sentence += "the weather is good today.";
 //		sentence += "His favourite sports is basketball.";
-		sentence += "he likes making faces or telling jokes.";
-		sentence += "she have like you.";
+		sentence += "he like making faces or telling jokes.";
+		sentence += "he have play that thing.";
 		System.out.println("原始句子：" + sentence);
 		RealWordCorrect model = new RealWordCorrect(CorpusUtil.getInstance());
 		model.run(sentence);

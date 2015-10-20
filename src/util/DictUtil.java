@@ -115,10 +115,12 @@ public class DictUtil {
 				//如果过去式和过去分词相同
 				if (bigramMap.containsKey(pt + "|" + jWord)) {
 					//如果存在改元组，则将该元组*0.8，降低频率，防止 liked 被过去式和过去分词的频率相加
-					bigramMap.put(pt + "|" + jWord, (int)(bigramMap.get(pt + "|" + jWord) * 0.3));
+//					bigramMap.put(pt + "|" + jWord, (int)(bigramMap.get(pt + "|" + jWord) * 0.3));
+					bigramMap.put(pt + "|" + jWord, count);
 				}else{
 					//如果不存在，则以原型的0.8赋值
-					bigramMap.put(pt + "|" + jWord, (int)(count * 0.1));
+//					bigramMap.put(pt + "|" + jWord, (int)(count * 0.1));
+					bigramMap.put(pt + "|" + jWord, (int)(count * 1));
 				}
 			}
 			
@@ -131,6 +133,27 @@ public class DictUtil {
 				//如果原始bigramMap里不存在 (三人称单数 + jWord) 的搭配形式，则将原型的频率复制给三人称单数
 				int oldCount = bigramMap.containsKey(ps + "|" + jWord) ? bigramMap.get(ps + "|" + jWord) : 0;
 				bigramMap.put(ps + "|" + jWord, Math.max(count, oldCount));
+			}
+			
+			if ((pt + "|" + jWord).equals("liked|you")) {
+				System.out.println();
+			}
+			
+			//交换 (人称代词 + 过去式) 和 (人称代词 + 三单) 的词频，保证三单的概率大于过去式的概率
+			if (ps.length() > 0 && pt.length() > 0) {
+				String[] personArr = {"he", "she"};
+				for (int i = 0; i < personArr.length; i++) {
+					String psKey = personArr[i] + "|" + ps;
+					String ptKey = personArr[i] + "|" + pt;
+					if (bigramMap.containsKey(psKey) && bigramMap.containsKey(ptKey)) {
+						int tmpCount = bigramMap.get(psKey);
+						if (tmpCount > bigramMap.get(ptKey)) {
+							continue;
+						}
+						bigramMap.put(psKey, bigramMap.get(ptKey));
+						bigramMap.put(ptKey, tmpCount);
+					}
+				}
 			}
 		}
 		System.out.println(bigramMap.size());
