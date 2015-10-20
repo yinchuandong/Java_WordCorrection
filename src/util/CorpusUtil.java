@@ -218,48 +218,14 @@ public class CorpusUtil {
 	}
 
 
-	/**
-	 * 根据编辑距离生成真词纠错的候选集合， 并写到文件中
-	 * 
-	 * @param words
-	 */
-	private void createCandidateList() {
-		try {
-			PrintWriter writer = new PrintWriter(new File(C.PATH_CANDIDATE_LIST));
-			
-			int count = 0;
-			for (Iterator<String> iIter = this.oxfordWordsSet.iterator(); iIter.hasNext();) {
-				count ++;
-				String iWord = iIter.next();
-				ArrayList<Node> tmpList = calcCandidateWords(iWord);
-				
-				int size = tmpList.size() > 10 ? 10 : tmpList.size();
-				String tmpStr = iWord + " ";
-				for (int i = 0; i < size; i++) {
-					tmpStr += tmpList.get(i).word + "," + tmpList.get(i).distance + " ";
-				}
-				tmpStr = tmpStr.substring(0, tmpStr.length() - 1); // remove the last '\t'
-//				System.out.println(tmpStr);
-//				break;
-				writer.println(tmpStr);
-				if (count % 100 == 0) {
-					System.out.println("正在处理第：" + count);
-				}
-			}
-			
-			writer.flush();
-			writer.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+	
 	
 	/**
 	 * 计算word
 	 * @param iWord
 	 * @return
 	 */
-	private ArrayList<Node> calcCandidateWords(String iWord){
+	public ArrayList<Node> calcCandidateWords(String iWord){
 		ArrayList<Node> tmpList = new ArrayList<Node>();
 		EditDistanceUtil editUtil = EditDistanceUtil.getInstance();
 		for (Iterator<String> jIter = this.oxfordWordsSet.iterator(); jIter.hasNext();) {
@@ -355,7 +321,7 @@ public class CorpusUtil {
 //		corpusUtil.createCandidateList();
 		
 //		ArrayList<Node> list = corpusUtil.calcCandidateWords("are");
-		ArrayList<Node> list = corpusUtil.getCandidateList("likes");
+		ArrayList<Node> list = corpusUtil.getCandidateList("lik");
 		for (Node node : list) {
 			System.out.println(node);
 		}

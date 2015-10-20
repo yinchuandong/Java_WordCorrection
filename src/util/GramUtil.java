@@ -17,6 +17,11 @@ import main.Node;
 
 import org.omg.CORBA.PUBLIC_MEMBER;
 
+/**
+ * 二元语法预处理，将词频转为概率
+ * @author yinchuandong
+ *
+ */
 public class GramUtil {
 	
 	/**
@@ -31,6 +36,7 @@ public class GramUtil {
 	public GramUtil(){
 		bigramMap = new HashMap<String, Integer>();
 		bigramSumMap = new HashMap<String, Integer>();
+		loadBigram();
 	}
 	
 	/**
@@ -161,6 +167,7 @@ public class GramUtil {
 	/**
 	 * 生成二元语法
 	 */
+	@Deprecated
 	public void generateBigram(){
 		
 		HashMap<String, Integer> bigramMap = new HashMap<String, Integer>();
@@ -254,6 +261,7 @@ public class GramUtil {
 	/**
 	 * 生成三元语法
 	 */
+	@Deprecated
 	public void generateTrigram(){
 		
 		HashMap<String, Integer> trigramMap = new HashMap<String, Integer>();
@@ -364,21 +372,17 @@ public class GramUtil {
 	}
 	
 	
-	/**
-	 * 根据编辑距离生成真词纠错的候选集合，
-	 * 并写到文件中
-	 * @param words
-	 */
-	public void generateCandidateList(String[] words){
-		
-	}
 	
+	
+	public HashMap<String, Integer> getBigramMap() {
+		return bigramMap;
+	}
+
 	public static void main(String[] args){
 		System.out.println("start");
 		long start = System.currentTimeMillis();
 		
 		GramUtil util = new GramUtil();
-		util.loadBigram();
 		util.createInitProbMap();
 		util.createTranProbMap();
 //		util.generateBigram();
