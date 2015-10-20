@@ -8,12 +8,15 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import main.Node;
@@ -187,36 +190,56 @@ public class DictUtil {
 	/*-------------候选集函数-----------------------------------------------*/
 	
 	/**
-	 * 创建候选同义词
+	 * 创合并编辑距离候选词和词形变换候选词
 	 */
 	private void createCandidateThesaurus(){
 		try {
 			PrintWriter writer = new PrintWriter(new File("data_new/candidate_set_new.txt"));
-			for (Iterator<String> iter = wordsMap.keySet().iterator(); iter.hasNext();) {
-				String key = iter.next();
+			BufferedReader reader = new BufferedReader(new FileReader(new File("data/candidate_set.txt")));
+			String buff = null;
+			while ((buff = reader.readLine()) != null) {
+				
+				int index = buff.indexOf(" ");
+				String key = buff.substring(0, index);
+				String[] lineArr = buff.substring(index + 1).split(" "); //根据edited distance 生成的
+				Map<String, Double> map = new TreeMap<String, Double>();
+				for (String item : lineArr) {
+					String[] arr = item.split(",");
+					String word = arr[0];
+					double distance = Double.parseDouble(arr[1]);
+					map.put(word, distance);
+				}
+				
+				//根据词形变换生成的
 				JSONObject obj = wordsMap.get(key);
-				String pt = obj.optString("pt"); // 过去式
-				String pp = obj.optString("p.p"); // 过去分词
-				String ppr = obj.optString("p.pr"); // 现在分词
-				String ps = obj.optString("3ps"); // 三单
-				String plural = obj.optString("plural"); //复数形式
-
-				HashSet<String> set = new HashSet<String>();
-				set.add(pt);
-				set.add(pp);
-				set.add(ppr);
-				set.add(ps);
-				set.add(plural);
-				String lineStr = key + " " + key + ",0" + " ";
-				for (String candi : set) {
-					if (candi.length() <= 0) {
+				if (obj != null) {
+					String pt = obj.optString("pt"); // 过去式
+					String pp = obj.optString("p.p"); // 过去分词
+					String ppr = obj.optString("p.pr"); // 现在分词
+					String ps = obj.optString("3ps"); // 三单
+					String plural = obj.optString("plural"); //复数形式
+					map.put(pt, 0.5);
+					map.put(pp, 0.5);
+					map.put(ppr, 0.5);
+					map.put(ps, 0.5);
+					map.put(plural, 0.5);
+				}
+				
+				//遍历写入到文件中
+				String lineStr = key + " ";
+				for (Iterator<String> iter = map.keySet().iterator(); iter.hasNext();) {
+					String tmpWord = iter.next();
+					if (tmpWord.length() == 0) {
 						continue;
 					}
-					lineStr += candi.split(" ")[0] + ",0.5 ";
+					//因为有些词性的word中带空格，所以要split
+					lineStr += tmpWord.split(" ")[0] + "," + map.get(tmpWord) + " ";
 				}
 				lineStr = lineStr.substring(0, lineStr.length() - 1);
 				writer.println(lineStr);
+				
 			}
+			reader.close();
 			writer.flush();
 			writer.close();
 		} catch (Exception e) {
@@ -269,10 +292,10 @@ public class DictUtil {
 		DictUtil util = new DictUtil();
 		util.init();
 		//根据w2_.txt重新生成二元语法库
-		util.resaveBigram();
+//		util.resaveBigram();
 		
 		//根据词性变换，生成候选语料集
-//		util.createCandidateThesaurus();
+		util.createCandidateThesaurus();
 		
 		//根据编辑距离创建候选集
 //		util.createCandidateList();

@@ -33,7 +33,7 @@ public class C {
 	/**
 	 * 真词纠错的候选集
 	 */
-//	public final static String PATH_CANDIDATE_LIST = "data_new/candidate_set.txt";
+//	public final static String PATH_CANDIDATE_LIST = "data/candidate_set.txt";
 	public final static String PATH_CANDIDATE_LIST = "data_new/candidate_set_new.txt";
 	/**
 	 * 语料库
