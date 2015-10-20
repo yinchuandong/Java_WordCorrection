@@ -165,15 +165,15 @@ public class RealWordCorrect {
 		 * there is lots of apple which I like
 		 */
 		String sentence = "";
-		sentence += "he am a boys. I have a apple. you is a boy.";
-		sentence += "there is lots of appe whih I like.";
-		sentence += "he do love you. she do love you.";
-		sentence += "my name as John.";
-		sentence += "I want too eat pizza this afternoon among my parent.";
-		sentence += "the weather is good today.";
-		sentence += "His favourite sport is basketball.";
-		sentence += "he like making faces or telling jokes.";
-		sentence += "she liks you.";
+//		sentence += "he am a boys. I have a apple. you is a boy.";
+//		sentence += "there is lots of appe whih I like.";
+//		sentence += "he do love you. she do love you.";
+//		sentence += "my name as John.";
+//		sentence += "I want too eat pizza this afternoon among my parent.";
+//		sentence += "the weather is good today.";
+//		sentence += "His favourite sports is basketball.";
+		sentence += "he likes making faces or telling jokes.";
+		sentence += "she have like you.";
 		System.out.println("原始句子：" + sentence);
 		RealWordCorrect model = new RealWordCorrect(CorpusUtil.getInstance());
 		model.run(sentence);

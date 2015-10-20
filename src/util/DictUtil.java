@@ -21,7 +21,11 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 
-
+/**
+ * 优化原始二元语料库，创建candidate set
+ * @author yinchuandong
+ *
+ */
 public class DictUtil {
 
 	HashMap<String, Integer> bigramMap;
@@ -246,6 +250,9 @@ public class DictUtil {
 		
 		//根据词性变换，生成候选语料集
 //		util.createCandidateThesaurus();
+		
+		//根据编辑距离创建候选集
+//		util.createCandidateList();
 		
 		long end = System.currentTimeMillis();
 		long delay = end - start;

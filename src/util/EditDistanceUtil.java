@@ -108,10 +108,10 @@ public class EditDistanceUtil {
 		if (c1 == c2) {
 			return 0;
 		}
-		String s = charSiblings.get(c1);
-		if (s != null && s.indexOf(c2) > -1) {
+//		String s = charSiblings.get(c1);
+//		if (s != null && s.indexOf(c2) > -1) {
 //			return SCORE_MIS_HIT;
-		}
+//		}
 		return 1;
 	}
 

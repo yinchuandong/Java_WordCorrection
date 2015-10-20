@@ -65,7 +65,6 @@ public class CorpusUtil {
 		loadOxfordWords();
 		loadInitProb();
 		loadTranProb();
-//		loadEmitProb();
 		loadConfusingWord();
 		loadCandidateList();
 	}
@@ -252,15 +251,6 @@ public class CorpusUtil {
 		});
 		int len = tmpList.size() > 10 ? 10 : tmpList.size();
 		tmpList  = new ArrayList<Node>(tmpList.subList(0, len));
-		String[] confusingWords = confusingMap.get(iWord);
-		if (confusingWords != null) {
-			for (String confusingWord : confusingWords) {
-				Node node = new Node(confusingWord, 0.1);
-				if (!tmpList.contains(node)) {
-					tmpList.add(node);
-				}
-			}
-		}
 		return tmpList;
 	}
 	
@@ -289,21 +279,21 @@ public class CorpusUtil {
 	public ArrayList<Node> getCandidateList(String word){
 		ArrayList<Node> tmpList = null;
 		//从文件中直接读取
-//		if (candidateMap.containsKey(word)) {
-//			tmpList = candidateMap.get(word);
-//			//由于生产一次candidate_set耗时太长，测试时就加上下面的代码
-//			String[] confusingWords = confusingMap.get(word);
-//			if (confusingWords != null) {
-////				tmpList.clear();
-//				for (String confusingWord : confusingWords) {
-//					Node node = new Node(confusingWord, 0.1);
-//					if (!tmpList.contains(node)) {
-//						tmpList.add(node);
-//					}
-//				}
-//			}
-//			return tmpList;
-//		}
+		if (candidateMap.containsKey(word)) {
+			tmpList = candidateMap.get(word);
+			//由于生产一次candidate_set耗时太长，测试时就加上下面的代码
+			String[] confusingWords = confusingMap.get(word);
+			if (confusingWords != null) {
+//				tmpList.clear();
+				for (String confusingWord : confusingWords) {
+					Node node = new Node(confusingWord, 0.1);
+					if (!tmpList.contains(node)) {
+						tmpList.add(node);
+					}
+				}
+			}
+			return tmpList;
+		}
 		//在线计算
 		tmpList = calcCandidateWords(word);
 		return tmpList;
