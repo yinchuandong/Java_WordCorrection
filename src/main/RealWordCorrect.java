@@ -165,9 +165,9 @@ public class RealWordCorrect {
 		 * there is lots of apple which I like
 		 */
 		String sentence = "";
-		sentence += "he am a boys. I have a apple. you is a boy.";
+		sentence += "he am a boys. I has a apples. you is a boy.";
 		sentence += "there is lots of appe whih I like.";
-		sentence += "he do love you. she did love you.";
+		sentence += "he do love you. she done love you.";
 		sentence += "my name as John.";
 		sentence += "I want too eat pizza this afternoon among my parent.";
 		sentence += "the weather is good today.";
