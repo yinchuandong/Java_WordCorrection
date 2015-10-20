@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 
+
 import util.CorpusUtil;
 
 /**
@@ -17,8 +18,6 @@ public class RealWordCorrect {
 
 	private CorpusUtil corpusUtil;
 
-	private HashSet<String> oxfordWordsSet;
-
 	/**
 	 * 初始概率
 	 */
@@ -27,25 +26,31 @@ public class RealWordCorrect {
 	 * 转移概率
 	 */
 	private HashMap<String, Double> tranProbMap;
-	/**
-	 * 发射概率map
-	 */
-	private HashMap<String, Double> emitProbMap;
 
 	private static double MIN_PROB = 0.0000000000000001;
 
 	private String[] words;
 	private Node[][] matrix;
 	private Node maxFinalNode = null;
+	
+	//结果句子记录矩阵
+	/** 未纠错的句子矩阵 */
+	String[][] oldWordMatrix = null;
+	/** 纠错之后的句子矩阵 */
+	String[][] newWordMatrix = null;
+	/** 句子对应的标点符号 */
+	String[] punctArr = null;
 
 	public RealWordCorrect(CorpusUtil corpusUtil) {
 		this.corpusUtil = corpusUtil;
-		this.oxfordWordsSet = corpusUtil.getOxfordWordsSet();
 		this.initProbMap = corpusUtil.getInitProbMap();
 		this.tranProbMap = corpusUtil.getTranProbMap();
-		this.emitProbMap = corpusUtil.getEmitProbMap();
 	}
 
+	/**
+	 * 初始化句子，每次只传入一句
+	 * @param words
+	 */
 	public void init(String[] words) {
 		this.words = words;
 		this.maxFinalNode = null;
@@ -109,6 +114,7 @@ public class RealWordCorrect {
 			}
 		}
 
+		//find the maximum node in the last column
 		Node[] finalRow = matrix[matrix.length - 1];
 		for (int k = 0; k < finalRow.length; k++) {
 			if (maxFinalNode == null || finalRow[k].prob > maxFinalNode.prob) {
@@ -130,29 +136,54 @@ public class RealWordCorrect {
 	}
 
 	public void run(String article) {
+		if (!article.endsWith(".")) {
+			article += ".";
+		}
 		article = article.replaceAll("\\s+", " ");
 		String[] oldSentences = article.split("[,.;]");
 		
-		String[][] newSentences = new String[oldSentences.length][];
+		oldWordMatrix = new String[oldSentences.length][]; 
+		newWordMatrix = new String[oldSentences.length][];
+		punctArr = new String[oldSentences.length];
+
+		int offset = 0;
 		for (int i = 0; i < oldSentences.length; i++) {
+			//获取每一句对应的标点符号
+			offset += oldSentences[i].length() + 1;
+			punctArr[i] = article.substring(offset - 1, offset);
+			
 			String oldSent = oldSentences[i].trim();
-			init(oldSent.split("\\s"));
+			oldWordMatrix[i] = oldSent.split("\\s");
+			init(oldWordMatrix[i]);
 			runBigram();
-//			String[] newSent = decode();
-			newSentences[i] = decode();
-			display();
+			newWordMatrix[i] = decode();
+			
+			for (int j = 0; j < newWordMatrix[i].length; j++) {
+				if (i == 0) {
+					newWordMatrix[i][0] = CorpusUtil.toUpperCaseFirstChar(newWordMatrix[i][0]);
+				}
+				if (i > 0 && (punctArr[i - 1].equals(".") || punctArr[i - 1].equals(";"))) {
+					newWordMatrix[i][0] = CorpusUtil.toUpperCaseFirstChar(newWordMatrix[i][0]);
+				}
+				if (newWordMatrix[i][j].equals("i")) {
+					newWordMatrix[i][j] = newWordMatrix[i][j].toUpperCase();
+				}
+			}
 		}
-		System.out.println("end run");
+		display();
+		System.out.println("----------end run------");
 	}
+	
 
 	public void display() {
-		Node tmpNode = maxFinalNode;
-		String str = "";
-		while (tmpNode != null) {
-			str = tmpNode.word + " " + str;
-			tmpNode = tmpNode.preNode;
+		System.out.println();
+		System.out.println("纠错句子：");
+		for (int i = 0; i < newWordMatrix.length; i++) {
+			for (int j = 0; j < newWordMatrix[i].length; j++) {
+				System.out.print(newWordMatrix[i][j] + " ");
+			}
+			System.out.println(punctArr[i]);
 		}
-		System.out.println("纠错句子：" + str);
 	}
 
 	public static void main(String[] args) {
@@ -165,9 +196,9 @@ public class RealWordCorrect {
 		 * there is lots of apple which I like
 		 */
 		String sentence = "";
-		sentence += "he am a boys. I has a apples. you is a boy.";
+		sentence += "he am a boys,I has a apples. you is a boy.";
 		sentence += "there is lots of appe whih I like.";
-		sentence += "he do love you. she done love you.";
+		sentence += "he do love you, She done love you.";
 		sentence += "my name as John.";
 		sentence += "I want too eat pizza this afternoon among my parent.";
 		sentence += "the weather is good today.";

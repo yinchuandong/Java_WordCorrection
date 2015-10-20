@@ -133,6 +133,7 @@ public class CorpusUtil {
 		}
 	}
 	
+	@Deprecated
 	private void loadEmitProb(){
 		try {
 			File file = new File(C.PATH_EMIT_PROB);
@@ -216,7 +217,19 @@ public class CorpusUtil {
 		return oxfordWordsSet;
 	}
 
-
+	/**
+	 * 首字母大写
+	 * @param name
+	 * @return
+	 */
+	public static String toUpperCaseFirstChar(String name) {
+		char[] cs = name.toCharArray();
+		if(Character.isUpperCase(cs[0])){
+			return name;
+		}
+		cs[0] -= 32;
+		return String.valueOf(cs);
+	}
 	
 	
 	/**
