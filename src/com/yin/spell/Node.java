@@ -1,4 +1,4 @@
-package main;
+package com.yin.spell;
 
 /**
  * 维特比节点的概率

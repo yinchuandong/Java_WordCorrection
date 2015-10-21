@@ -19,7 +19,9 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import main.Node;
+import com.yin.spell.CorpusUtil;
+import com.yin.spell.Node;
+
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
@@ -253,7 +255,7 @@ public class DictUtil {
 	 * @param words
 	 */
 	private void createCandidateList() {
-		CorpusUtil util = CorpusUtil.getInstance();
+		CorpusUtil util = CorpusUtil.getInstance(C.PATH_ARR);
 		oxfordWordsSet = util.getOxfordWordsSet(); 
 		try {
 			PrintWriter writer = new PrintWriter(new File(C.PATH_CANDIDATE_LIST));

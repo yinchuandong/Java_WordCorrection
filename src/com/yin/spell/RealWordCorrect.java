@@ -1,10 +1,9 @@
-package main;
+package com.yin.spell;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
-
-import util.CorpusUtil;
+import util.C;
 
 /**
  * 真词纠错
@@ -204,7 +203,7 @@ public class RealWordCorrect {
 		sentence += "he like making faces or telling jokes.";
 		sentence += "he have play tuis thing.";
 		System.out.println("原始句子：" + sentence);
-		RealWordCorrect model = new RealWordCorrect(CorpusUtil.getInstance());
+		RealWordCorrect model = new RealWordCorrect(CorpusUtil.getInstance(C.PATH_ARR));
 		model.run(sentence);
 		long end = System.currentTimeMillis();
 		System.out.println("end;  delay: " + (end - start));

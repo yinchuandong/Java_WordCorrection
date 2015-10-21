@@ -1,4 +1,4 @@
-package util;
+package com.yin.spell;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -16,8 +16,9 @@ import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import util.C;
+import util.EditDistanceUtil;
 import net.sf.json.JSONObject;
-import main.Node;
 
 public class CorpusUtil {
 
@@ -49,14 +50,17 @@ public class CorpusUtil {
 	 * 词典的集合，包括词典的解释
 	 */
 	private HashMap<String, String> dictMap;
+	
+	private String[] pathArr;
 
-	private CorpusUtil() {
+	private CorpusUtil(String[] pathArr) {
+		this.pathArr = pathArr;
 		init();
 	}
 
-	public static CorpusUtil getInstance() {
+	public static CorpusUtil getInstance(String[] pathArr) {
 		if (instance == null) {
-			instance = new CorpusUtil();
+			instance = new CorpusUtil(pathArr);
 		}
 		return instance;
 	}
@@ -82,7 +86,7 @@ public class CorpusUtil {
 	 */
 	private void loadOxfordWords() {
 		try {
-			File file = new File(C.PATH_OXFORD_WORDS);
+			File file = new File(pathArr[0]);
 			BufferedReader reader = new BufferedReader(new FileReader(file));
 			String buff = null;
 			while ((buff = reader.readLine()) != null) {
@@ -105,7 +109,7 @@ public class CorpusUtil {
 	 */
 	private void loadInitProb(){
 		try {
-			File file = new File(C.PATH_INIT_PROB);
+			File file = new File(pathArr[1]);
 			BufferedReader reader = new BufferedReader(new FileReader(file));
 			String buff = null;
 			while ((buff = reader.readLine()) != null) {
@@ -130,7 +134,7 @@ public class CorpusUtil {
 	 */
 	private void loadTranProb(){
 		try {
-			File file = new File(C.PATH_TRAN_PROB);
+			File file = new File(pathArr[2]);
 			BufferedReader reader = new BufferedReader(new FileReader(file));
 			String buff = null;
 			while ((buff = reader.readLine()) != null) {
@@ -152,25 +156,25 @@ public class CorpusUtil {
 	
 	@Deprecated
 	private void loadEmitProb(){
-		try {
-			File file = new File(C.PATH_EMIT_PROB);
-			BufferedReader reader = new BufferedReader(new FileReader(file));
-			String buff = null;
-			while ((buff = reader.readLine()) != null) {
-				String[] lineArr = buff.split("\t");
-				if (lineArr.length < 3) {
-					continue;
-				}
-				String key = lineArr[0] + "|" + lineArr[1];
-				double prob = Double.parseDouble(lineArr[2]);
-				emitProbMap.put(key, prob);
-			}
-			reader.close();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+//		try {
+//			File file = new File(C.PATH_EMIT_PROB);
+//			BufferedReader reader = new BufferedReader(new FileReader(file));
+//			String buff = null;
+//			while ((buff = reader.readLine()) != null) {
+//				String[] lineArr = buff.split("\t");
+//				if (lineArr.length < 3) {
+//					continue;
+//				}
+//				String key = lineArr[0] + "|" + lineArr[1];
+//				double prob = Double.parseDouble(lineArr[2]);
+//				emitProbMap.put(key, prob);
+//			}
+//			reader.close();
+//		} catch (FileNotFoundException e) {
+//			e.printStackTrace();
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
 	}
 	
 	/**
@@ -178,7 +182,7 @@ public class CorpusUtil {
 	 */
 	private void loadConfusingWord(){
 		try {
-			File file = new File(C.PATH_CONFUSING_WORD);
+			File file = new File(pathArr[3]);
 			BufferedReader reader = new BufferedReader(new FileReader(file));
 			String buff = null;
 			ArrayList<String[]> list = new ArrayList<String[]>();
@@ -210,7 +214,7 @@ public class CorpusUtil {
 	 */
 	private void loadCandidateList() {
 		try {
-			File file = new File(C.PATH_CANDIDATE_LIST);
+			File file = new File(pathArr[4]);
 			BufferedReader reader = new BufferedReader(new FileReader(file));
 			String buff = null;
 			while ((buff = reader.readLine()) != null) {
@@ -242,8 +246,7 @@ public class CorpusUtil {
 	public void loadDictMap() {
 		try {
 			// 加载词库
-			String filename = "/Users/yinchuandong/PycharmProjects/python_dict/out/newList.json";
-			BufferedReader reader = new BufferedReader(new FileReader(new File(filename)));
+			BufferedReader reader = new BufferedReader(new FileReader(new File(pathArr[5])));
 			String buff = null;
 			while ((buff = reader.readLine()) != null) {
 				Pattern pattern = Pattern.compile("\"word\":\\s+\"(\\w+)\"");
@@ -374,7 +377,7 @@ public class CorpusUtil {
 		System.out.println("start:");
 		long start = System.currentTimeMillis();
 		
-		CorpusUtil corpusUtil = CorpusUtil.getInstance();
+		CorpusUtil corpusUtil = CorpusUtil.getInstance(C.PATH_ARR);
 		
 //		ArrayList<Node> list = corpusUtil.calcCandidateWords("are");
 		ArrayList<Node> list = corpusUtil.getCandidateList("like");

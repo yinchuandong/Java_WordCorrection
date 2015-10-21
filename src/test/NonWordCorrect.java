@@ -1,4 +1,4 @@
-package main;
+package test;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -8,7 +8,8 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
-import util.CorpusUtil;
+import com.yin.spell.CorpusUtil;
+
 import util.EditDistanceUtil;
 
 public class NonWordCorrect {
@@ -75,8 +76,8 @@ public class NonWordCorrect {
 		
 	
 	public static void main(String[] args){
-		NonWordCorrect model = new NonWordCorrect(CorpusUtil.getInstance());
-		model.detectOne("plasds");
+//		NonWordCorrect model = new NonWordCorrect(CorpusUtil.getInstance());
+//		model.detectOne("plasds");
 		
 	}
 	
