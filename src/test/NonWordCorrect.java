@@ -9,8 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.yin.spell.CorpusUtil;
-
-import util.EditDistanceUtil;
+import com.yin.spell.EditDistanceUtil;
 
 public class NonWordCorrect {
 	

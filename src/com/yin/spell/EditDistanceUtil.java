@@ -1,4 +1,4 @@
-package util;
+package com.yin.spell;
 
 import java.util.HashMap;
 import java.util.Map;

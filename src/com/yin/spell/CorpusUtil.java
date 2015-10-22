@@ -17,7 +17,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import util.C;
-import util.EditDistanceUtil;
 import net.sf.json.JSONObject;
 
 public class CorpusUtil {
