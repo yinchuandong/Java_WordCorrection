@@ -1,4 +1,4 @@
-package util;
+package com.yin.spell;
 
 public class C {
 
@@ -11,6 +11,10 @@ public class C {
 	 * 三元语法
 	 */
 	public final static String PATH_TRIGRAM = "data/trigram.txt";
+	/**
+	 * 语料库
+	 */
+	public final static String PATH_SENTENCE= "data/sentences.txt";
 	/**
 	 * 牛津词典
 	 */
@@ -33,7 +37,6 @@ public class C {
 	/**
 	 * 真词纠错的候选集
 	 */
-//	public final static String PATH_CANDIDATE_LIST = "data/candidate_set.txt";
 	public final static String PATH_CANDIDATE_LIST = "data_new/candidate_set_new.dat";
 	
 	/**
@@ -41,17 +44,5 @@ public class C {
 	 */
 	public final static String PATH_DICT_MAP = "data_new/dict.json";
 	
-	public final static String[] PATH_ARR = {
-		C.PATH_OXFORD_WORDS,
-		C.PATH_INIT_PROB,
-		C.PATH_TRAN_PROB,
-		C.PATH_CONFUSING_WORD,
-		C.PATH_CANDIDATE_LIST,
-		C.PATH_DICT_MAP
-	};
-	/**
-	 * 语料库
-	 */
-	public final static String PATH_SENTENCE= "data/sentences.txt";
 	
 }

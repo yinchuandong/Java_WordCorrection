@@ -15,6 +15,7 @@ import java.util.List;
 
 import org.omg.CORBA.PUBLIC_MEMBER;
 
+import com.yin.spell.C;
 import com.yin.spell.CorpusUtil;
 import com.yin.spell.Node;
 
@@ -129,7 +130,7 @@ public class GramUtil {
 		HashMap<String, Double> matrixMap = new HashMap<String, Double>();
 		HashMap<String, Double> sumOfLineMap = new HashMap<String, Double>();
 		
-		CorpusUtil util = CorpusUtil.getInstance(C.PATH_ARR);
+		CorpusUtil util = CorpusUtil.getInstance();
 		HashMap<String, ArrayList<Node>> candidateMap = util.getCandidateMap();
 		for (Iterator<String> iter = candidateMap.keySet().iterator(); iter.hasNext();) {
 			String iWord = iter.next();

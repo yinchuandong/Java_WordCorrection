@@ -3,7 +3,8 @@ package com.yin.spell;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import util.C;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 
 /**
  * 真词纠错
@@ -81,7 +82,7 @@ public class RealWordCorrect {
 	/**
 	 * 采用二元语法计算
 	 */
-	private void runBigram() {
+	private void calcBigram() {
 		
 		for (int t = 1; t < words.length; t++) {
 			Node[] curNodes = matrix[t];
@@ -132,12 +133,21 @@ public class RealWordCorrect {
 		return result;
 	}
 
-	public void run(String article) {
+	/**
+	 * 具体运行算法
+	 * @param article
+	 * @return
+	 */
+	public boolean run(String article) {
 		if (!article.endsWith(".")) {
 			article += ".";
 		}
 		article = article.replaceAll("\\s+", " ");
 		String[] oldSentences = article.split("[,.;]");
+		
+		if(oldSentences.length < 2){
+			return false;
+		}
 		
 		oldWordMatrix = new String[oldSentences.length][]; 
 		newWordMatrix = new String[oldSentences.length][];
@@ -152,7 +162,7 @@ public class RealWordCorrect {
 			String oldSent = oldSentences[i].trim();
 			oldWordMatrix[i] = oldSent.split("\\s");
 			init(oldWordMatrix[i]);
-			runBigram();
+			calcBigram();
 			newWordMatrix[i] = decode();
 			
 			for (int j = 0; j < newWordMatrix[i].length; j++) {
@@ -169,8 +179,35 @@ public class RealWordCorrect {
 		}
 		display();
 		System.out.println("----------end run------");
+		return true;
 	}
 	
+	
+	/**
+	 * 返回给外部调用的json
+	 * @return
+	 */
+	public String ajaxRun(String article){
+		
+		JSONObject ret = JSONObject.fromObject("{}");
+		if(run(article) == false){
+			ret.put("status", "0");
+			ret.put("info", "fail");
+			return ret.toString();
+		}
+		JSONObject data = JSONObject.fromObject("{}");
+		JSONArray oldMatrix = JSONArray.fromObject(this.oldWordMatrix);
+		JSONArray newMatrix = JSONArray.fromObject(this.newWordMatrix);
+		JSONArray punct = JSONArray.fromObject(this.punctArr);
+		data.put("oldMatrix", oldMatrix);
+		data.put("newMatrix", newMatrix);
+		data.put("punct", punct);
+		ret.put("data", data);
+		ret.put("status", "1");
+		ret.put("info", "success");
+//		System.out.println(obj);
+		return ret.toString();
+	}
 
 	public void display() {
 		System.out.println();
@@ -193,18 +230,19 @@ public class RealWordCorrect {
 		 * there is lots of apple which I like
 		 */
 		String sentence = "";
-		sentence += "he am a boys,I has a apples. you is a boy.";
-		sentence += "there is lots of appe whih I like.";
-		sentence += "he do love you, She done love you.";
-		sentence += "my name as John.";
-		sentence += "I want too eat pizza this afternoon among my parent.";
-		sentence += "the weather is good today.";
-		sentence += "His favourite sports is basketball.";
-		sentence += "he like making faces or telling jokes.";
-		sentence += "he have play tuis thing.";
+//		sentence += "he am a boys,I has a apples. you is a boy.";
+//		sentence += "there is lots of appe whih I like.";
+//		sentence += "he do love you, She done love you.";
+//		sentence += "my name as John.";
+//		sentence += "I want too eat pizza this afternoon among my parent.";
+//		sentence += "the weather is good today.";
+//		sentence += "His favourite sports is basketball.";
+//		sentence += "he like making faces or telling jokes.";
+//		sentence += "he have play tuis thing.";
 		System.out.println("原始句子：" + sentence);
-		RealWordCorrect model = new RealWordCorrect(CorpusUtil.getInstance(C.PATH_ARR));
-		model.run(sentence);
+		RealWordCorrect model = new RealWordCorrect(CorpusUtil.getInstance());
+		model.ajaxRun(sentence);
+		
 		long end = System.currentTimeMillis();
 		System.out.println("end;  delay: " + (end - start));
 	}
