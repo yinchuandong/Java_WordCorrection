@@ -354,10 +354,25 @@ public class CorpusUtil {
 					}
 				}
 			}
-			return tmpList;
+		}else{
+			//在线计算
+			tmpList = calcCandidateWords(word);
 		}
-		//在线计算
-		tmpList = calcCandidateWords(word);
+		//让候选集按照编辑距离排序
+		Collections.sort(tmpList, new Comparator<Node>() {
+
+			@Override
+			public int compare(Node o1, Node o2) {
+				if(o1.distance < o2.distance){
+					return -1;
+				}else if(o1.distance > o2.distance){
+					return 1;
+				}else{
+					return 0;
+				}
+				
+			}
+		});
 		return tmpList;
 	}
 	
@@ -380,7 +395,7 @@ public class CorpusUtil {
 		for (Node node : list) {
 			System.out.println(node);
 		}
-		corpusUtil.loadDictMap();
+//		corpusUtil.loadDictMap();
 		long end = System.currentTimeMillis();
 		long delay = (end - start);
 		System.out.println("delay: " + delay + "ms");

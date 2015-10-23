@@ -38,6 +38,10 @@ public class RealWordCorrect {
 	String[][] newWordMatrix = null;
 	/** 句子对应的标点符号 */
 	String[] punctArr = null;
+	
+	public RealWordCorrect(){
+		this(CorpusUtil.getInstance());
+	}
 
 	public RealWordCorrect(CorpusUtil corpusUtil) {
 		this.corpusUtil = corpusUtil;
@@ -199,13 +203,31 @@ public class RealWordCorrect {
 		JSONArray oldMatrix = JSONArray.fromObject(this.oldWordMatrix);
 		JSONArray newMatrix = JSONArray.fromObject(this.newWordMatrix);
 		JSONArray punct = JSONArray.fromObject(this.punctArr);
-		data.put("oldMatrix", oldMatrix);
-		data.put("newMatrix", newMatrix);
-		data.put("punct", punct);
+//		data.put("oldMatrix", oldMatrix);
+//		data.put("newMatrix", newMatrix);
+//		data.put("punct", punct);
+		
+		HashMap<String, String[]> candiMap = new HashMap<String, String[]>();
+		for (int i = 0; i < newWordMatrix.length; i++) {
+			for (int j = 0; j < newWordMatrix[i].length; j++) {
+				String word = newWordMatrix[i][j].toLowerCase();
+				if(candiMap.containsKey(word)){
+					continue;
+				}
+				ArrayList<Node> nodeList = corpusUtil.getCandidateList(word);
+				String[] wordArr = new String[nodeList.size()];
+				for(int k = 0; k < nodeList.size(); k++){
+					wordArr[k] = nodeList.get(k).word;
+				}
+				candiMap.put(word, wordArr);
+			}
+		}
+		
+		ret.put("candidate", candiMap);
 		ret.put("data", data);
 		ret.put("status", "1");
 		ret.put("info", "success");
-//		System.out.println(obj);
+		System.out.println(ret);
 		return ret.toString();
 	}
 
@@ -230,7 +252,7 @@ public class RealWordCorrect {
 		 * there is lots of apple which I like
 		 */
 		String sentence = "";
-//		sentence += "he am a boys,I has a apples. you is a boy.";
+		sentence += "he am a boys,I has a apples. you is a boy.";
 //		sentence += "there is lots of appe whih I like.";
 //		sentence += "he do love you, She done love you.";
 //		sentence += "my name as John.";
