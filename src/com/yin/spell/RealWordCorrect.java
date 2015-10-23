@@ -54,7 +54,7 @@ public class RealWordCorrect {
 	 * @param words
 	 */
 	public void init(String[] words) {
-		this.words = words;
+		this.words = words.clone();
 		this.maxFinalNode = null;
 		this.matrix = new Node[words.length][];
 		this.initMatrix();
@@ -149,7 +149,7 @@ public class RealWordCorrect {
 		article = article.replaceAll("\\s+", " ");
 		String[] oldSentences = article.split("[,.;]");
 		
-		if(oldSentences.length < 2){
+		if(oldSentences.length < 1){
 			return false;
 		}
 		
@@ -200,12 +200,9 @@ public class RealWordCorrect {
 			return ret.toString();
 		}
 		JSONObject data = JSONObject.fromObject("{}");
-		JSONArray oldMatrix = JSONArray.fromObject(this.oldWordMatrix);
-		JSONArray newMatrix = JSONArray.fromObject(this.newWordMatrix);
-		JSONArray punct = JSONArray.fromObject(this.punctArr);
-//		data.put("oldMatrix", oldMatrix);
-//		data.put("newMatrix", newMatrix);
-//		data.put("punct", punct);
+		data.put("oldMatrix", oldWordMatrix);
+		data.put("newMatrix", newWordMatrix);
+		data.put("punct", punctArr);
 		
 		HashMap<String, String[]> candiMap = new HashMap<String, String[]>();
 		for (int i = 0; i < newWordMatrix.length; i++) {
@@ -236,6 +233,7 @@ public class RealWordCorrect {
 		System.out.println("纠错句子：");
 		for (int i = 0; i < newWordMatrix.length; i++) {
 			for (int j = 0; j < newWordMatrix[i].length; j++) {
+				System.out.print(oldWordMatrix[i][j] + "/");
 				System.out.print(newWordMatrix[i][j] + " ");
 			}
 			System.out.println(punctArr[i]);
@@ -252,7 +250,7 @@ public class RealWordCorrect {
 		 * there is lots of apple which I like
 		 */
 		String sentence = "";
-		sentence += "he am a boys,I has a apples. you is a boy.";
+		sentence += "He am a boys,I has a apples. you is a boy.";
 //		sentence += "there is lots of appe whih I like.";
 //		sentence += "he do love you, She done love you.";
 //		sentence += "my name as John.";
