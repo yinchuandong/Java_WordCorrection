@@ -5,8 +5,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -16,26 +14,19 @@ import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import net.sf.json.JSONObject;
+import redis.clients.jedis.Jedis;
 
 public class CorpusUtil {
 
 	private static CorpusUtil instance = null;
+	
+	private Jedis redis = null;
+	
+	private static double MIN_PROB = 0.0000000000000001;
+
 
 	private HashSet<String> oxfordWordsSet;
 	
-	/**
-	 * 初始概率map
-	 */
-	private HashMap<String, Double> initProbMap;
-	/**
-	 * 转移概率map
-	 */
-	private HashMap<String, Double> tranProbMap;
-	/**
-	 * 发射概率map
-	 */
-	private HashMap<String, Double> emitProbMap;
 	/**
 	 * 计算混淆词集
 	 */
@@ -62,17 +53,14 @@ public class CorpusUtil {
 	}
 
 	private void init() {
+		redis = RedisUtil.getInstance();
+		
 		oxfordWordsSet = new HashSet<String>();
-		initProbMap = new HashMap<String, Double>();
-		tranProbMap = new HashMap<String, Double>();
-		emitProbMap = new HashMap<String, Double>();
 		confusingMap = new HashMap<String, String[]>();
 		candidateMap = new HashMap<String, ArrayList<Node>>();
 		dictMap = new HashMap<String, String>();
 
 		loadOxfordWords();
-		loadInitProb();
-		loadTranProb();
 		loadConfusingWord();
 		loadCandidateList();
 	}
@@ -100,78 +88,7 @@ public class CorpusUtil {
 
 	}
 	
-	/**
-	 * 加载初始概率
-	 */
-	private void loadInitProb(){
-		try {
-			File file = new File(C.PATH_INIT_PROB);
-			BufferedReader reader = new BufferedReader(new FileReader(file));
-			String buff = null;
-			while ((buff = reader.readLine()) != null) {
-				String[] lineArr = buff.split("\t");
-				if (lineArr.length < 2) {
-					continue;
-				}
-				String key = lineArr[0] ;
-				double prob = Double.parseDouble(lineArr[1]);
-				initProbMap.put(key, prob);
-			}
-			reader.close();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
 	
-	/**
-	 * 加载转移概率
-	 */
-	private void loadTranProb(){
-		try {
-			File file = new File(C.PATH_TRAN_PROB);
-			BufferedReader reader = new BufferedReader(new FileReader(file));
-			String buff = null;
-			while ((buff = reader.readLine()) != null) {
-				String[] lineArr = buff.split("\t");
-				if (lineArr.length < 3) {
-					continue;
-				}
-				String key = lineArr[0] + "|" + lineArr[1];
-				double prob = Double.parseDouble(lineArr[2]);
-				tranProbMap.put(key, prob);
-			}
-			reader.close();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	@Deprecated
-	private void loadEmitProb(){
-//		try {
-//			File file = new File(C.PATH_EMIT_PROB);
-//			BufferedReader reader = new BufferedReader(new FileReader(file));
-//			String buff = null;
-//			while ((buff = reader.readLine()) != null) {
-//				String[] lineArr = buff.split("\t");
-//				if (lineArr.length < 3) {
-//					continue;
-//				}
-//				String key = lineArr[0] + "|" + lineArr[1];
-//				double prob = Double.parseDouble(lineArr[2]);
-//				emitProbMap.put(key, prob);
-//			}
-//			reader.close();
-//		} catch (FileNotFoundException e) {
-//			e.printStackTrace();
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-	}
 	
 	/**
 	 * 加载易混淆词
@@ -318,17 +235,34 @@ public class CorpusUtil {
 		return oxfordWordsSet;
 	}
 	
-	public HashMap<String, Double> getInitProbMap() {
-		return initProbMap;
+	/**
+	 * 获得初始概率
+	 * @param key
+	 * @return
+	 */
+	public double getInitProb(String key){
+		key = "init_prob:" + key;
+		if(!redis.exists(key)){
+			return MIN_PROB;
+		}else{
+			return Double.parseDouble(redis.get(key));
+		}
 	}
-
-	public HashMap<String, Double> getTranProbMap() {
-		return tranProbMap;
+	
+	/**
+	 * 获得转移概率
+	 * @param key
+	 * @return
+	 */
+	public double getTranProb(String key){
+		key = "tran_prob:" + key;
+		if(!redis.exists(key)){
+			return MIN_PROB;
+		}else{
+			return Double.parseDouble(redis.get(key));
+		}
 	}
-
-	public HashMap<String, Double> getEmitProbMap() {
-		return emitProbMap;
-	}
+	
 
 	public HashMap<String, ArrayList<Node>> getCandidateMap() {
 		return candidateMap;
@@ -389,12 +323,15 @@ public class CorpusUtil {
 		long start = System.currentTimeMillis();
 		
 		CorpusUtil corpusUtil = CorpusUtil.getInstance();
+		System.out.println(corpusUtil.getInitProb("like"));
+		System.out.println(corpusUtil.getTranProb("i|like"));
+		System.out.println(corpusUtil.getTranProb("i|liked"));
 		
 //		ArrayList<Node> list = corpusUtil.calcCandidateWords("are");
-		ArrayList<Node> list = corpusUtil.getCandidateList("like");
-		for (Node node : list) {
-			System.out.println(node);
-		}
+//		ArrayList<Node> list = corpusUtil.getCandidateList("like");
+//		for (Node node : list) {
+//			System.out.println(node);
+//		}
 //		corpusUtil.loadDictMap();
 		long end = System.currentTimeMillis();
 		long delay = (end - start);

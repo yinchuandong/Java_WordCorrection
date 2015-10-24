@@ -16,17 +16,6 @@ public class RealWordCorrect {
 
 	private CorpusUtil corpusUtil;
 
-	/**
-	 * 初始概率
-	 */
-	private HashMap<String, Double> initProbMap;
-	/**
-	 * 转移概率
-	 */
-	private HashMap<String, Double> tranProbMap;
-
-	private static double MIN_PROB = 0.0000000000000001;
-
 	private String[] words;
 	private Node[][] matrix;
 	private Node maxFinalNode = null;
@@ -45,8 +34,6 @@ public class RealWordCorrect {
 
 	public RealWordCorrect(CorpusUtil corpusUtil) {
 		this.corpusUtil = corpusUtil;
-		this.initProbMap = corpusUtil.getInitProbMap();
-		this.tranProbMap = corpusUtil.getTranProbMap();
 	}
 
 	/**
@@ -75,11 +62,7 @@ public class RealWordCorrect {
 		// 创建初始维特比概率
 		for (int j = 0; j < matrix[0].length; j++) {
 			Node node = matrix[0][j];
-			double initProb = initProbMap.containsKey(node.word) ? initProbMap.get(node.word) : MIN_PROB;
-//			String emitKey = words[0] + "|" + node.word;
-//			double emitProb = emitProbMap.containsKey(emitKey) ? emitProbMap.get(emitKey) : MIN_PROB;
-//			node.prob = initProb * emitProb;
-			node.prob = initProb;
+			node.prob = corpusUtil.getInitProb(node.word);
 		}
 	}
 
@@ -96,21 +79,15 @@ public class RealWordCorrect {
 				double maxProb = Integer.MIN_VALUE;
 
 				for (int j = 0; j < preNodes.length; j++) {
-					double preProb = MIN_PROB;
 					String tranKey = preNodes[j].word + "|" + curNodes[i].word;
-					if (tranProbMap.containsKey(tranKey)) {
-						preProb = tranProbMap.get(tranKey);
-					}
+					double preProb = corpusUtil.getTranProb(tranKey);
 					double tmpProb = matrix[t - 1][j].prob * preProb;
 					if (tmpProb > maxProb) {
 						maxPreNode = preNodes[j];
 						maxProb = tmpProb;
 					}
 				}
-
-//				String emitKey = words[t] + "|" + curNodes[i].word;
-//				double emitProb = emitProbMap.containsKey(emitKey) ? emitProbMap.get(emitKey) : MIN_PROB;
-//				maxProb = maxProb * emitProb;
+				
 				curNodes[i].prob = maxProb;
 				curNodes[i].preNode = maxPreNode;
 			}

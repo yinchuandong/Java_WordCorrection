@@ -2,3 +2,4 @@ bin
 data
 data_new
 *_bak*
+loadredis.jar
