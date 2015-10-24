@@ -204,10 +204,11 @@ public class RealWordCorrect {
 		data.put("newMatrix", newWordMatrix);
 		data.put("punct", punctArr);
 		
+		//候选集是没有纠错的候选集
 		HashMap<String, String[]> candiMap = new HashMap<String, String[]>();
-		for (int i = 0; i < newWordMatrix.length; i++) {
-			for (int j = 0; j < newWordMatrix[i].length; j++) {
-				String word = newWordMatrix[i][j].toLowerCase();
+		for (int i = 0; i < oldWordMatrix.length; i++) {
+			for (int j = 0; j < oldWordMatrix[i].length; j++) {
+				String word = oldWordMatrix[i][j].toLowerCase();
 				if(candiMap.containsKey(word)){
 					continue;
 				}
