@@ -130,6 +130,7 @@ public class RealWordCorrect {
 			return false;
 		}
 		
+		corpusUtil.initRedis();
 		oldWordMatrix = new String[oldSentences.length][]; 
 		newWordMatrix = new String[oldSentences.length][];
 		punctArr = new String[oldSentences.length];
@@ -158,6 +159,8 @@ public class RealWordCorrect {
 				}
 			}
 		}
+		//have to do this
+		corpusUtil.closeRedis();
 		display();
 		System.out.println("----------end run------");
 		return true;

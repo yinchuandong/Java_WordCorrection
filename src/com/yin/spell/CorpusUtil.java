@@ -53,7 +53,6 @@ public class CorpusUtil {
 	}
 
 	private void init() {
-		redis = RedisUtil.getInstance();
 		
 		oxfordWordsSet = new HashSet<String>();
 		confusingMap = new HashMap<String, String[]>();
@@ -64,6 +63,16 @@ public class CorpusUtil {
 		loadConfusingWord();
 		loadCandidateList();
 	}
+	
+	public void initRedis(){
+		redis = RedisUtil.getInstance();
+	}
+	
+	public void closeRedis(){
+		RedisUtil.returnResource(redis);
+	}
+	
+	
 
 	/**
 	 * 加载牛津词典，只有单词
