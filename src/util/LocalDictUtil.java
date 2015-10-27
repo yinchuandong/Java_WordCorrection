@@ -61,16 +61,19 @@ public class LocalDictUtil {
 			RandomAccessFile writer = new RandomAccessFile(PATH_DICT, "rw");
 
 			int offset = 0;
+			byte[] space = "\0".getBytes("utf-8");
+			System.out.println("space len:" + space.length);
 			for (Iterator<String> iter = dictMap.keySet().iterator(); iter.hasNext();) {
 				String key = iter.next();
 				String obj = dictMap.get(key).toString();
 				byte[] objBytes = obj.getBytes("utf-8");
 				int start = offset;
-				int size = objBytes.length;
+				int size = objBytes.length + space.length;
 				int end = offset + size;
 
 				indexWriter.println(key + "," + start + "," + size + "," + end);
 //				dictWriter.println(obj);
+				writer.write(space);
 				writer.write(objBytes);
 
 				offset = end;
@@ -118,7 +121,7 @@ public class LocalDictUtil {
 		try {
 			dictFile = new RandomAccessFile(PATH_DICT, "r");
 			byte[] buff = new byte[(int) addr.size];
-			dictFile.seek(addr.start);
+			dictFile.seek(addr.start + 1);
 			dictFile.read(buff, 0, (int) addr.size);
 			ret = new String(buff);
 			System.out.println(ret);
@@ -132,10 +135,10 @@ public class LocalDictUtil {
 	public static void main(String[] args) {
 		System.out.println("start");
 		LocalDictUtil util = new LocalDictUtil();
-//		util.write();
+		util.write();
 		
 //		util.loadIndex();
-//		util.find("play");
+//		util.find("hello");
 		System.out.println("end");
 	}
 	
